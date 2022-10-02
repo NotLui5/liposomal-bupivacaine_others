@@ -45,6 +45,8 @@ names(cont2)
 names(cont2) <- c('id', 'int', 'intd', 'comp', 'compd', 'outc', 'tpart', 'tint', 
                   'tcomp', 'mean', 'sd', 'mean1', 'sd1', 'median', 'iqr','iqr1',
                   'pvalue')
+
+# Add a col with median value
 cont2 <- cbind(cont2, median1=c(NA, NA, NA))
 
 # Complete total participants with tint + tcomp
