@@ -17,6 +17,7 @@ data <- read.xlsx("Data extraction cleaned.xlsx", sheet = 3)
 View(data)
 # Delete 
 data1 <- data[-c(1,2,3,4),-c(7,19,20,21)]
+rownames(data1) <- NULL #Restablecer el numero de filas
 
 # Renamecols, RefID = id, Intervention = int, Intervention.Dose = intd, 
 # Comparison.(bupivacaine,.placebo,.other) = comp, Comparison.Dose = cd, 
@@ -41,8 +42,7 @@ data1$comp[data1$comp == 'placebo cream'] <- 'placebo'
 data1$comp[data1$comp == 'placebo (0.9% sodium chloride)'] <- 'placebo'
 table(data1$comp)
 
-data1[is.na(data1$tint),] #visualizar NA filas
-rownames(data1) <- NULL #eliminar el numero de filas
+data1[is.na(data1$tpart),] #visualizar NA filas
 data1 <- data1[-c(46,47,48),]
 rownames(data1)
 
