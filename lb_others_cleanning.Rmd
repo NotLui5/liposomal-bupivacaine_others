@@ -26,6 +26,51 @@ data1 <- data[-c(1,2,3,4),-c(7,19,20,21)]
 names(data1) <- c('id', 'int', 'intd', 'comp', 'compd', 'outc', 'tpart', 'tint', 
                   'tcomp', 'mean', 'sd', 'median', 'iqr', 'mean1', 'sd1', 'median1', 
                   'iqr1', 'pvalue')
+
 data1$tpart <- data1$tint + data1$tcomp
+
+table(data1$intd) #Buscando fusionar o eliminar filas
+data1$intd[data1$intd == '199 mg'] <- '199'
+data1$intd[data1$intd == '266 mg'] <- '266'
+data1$intd[data1$intd == '300 mg'] <- '300'
+data1$intd[data1$intd == '66 mg'] <- '66'
+table(data1$intd)
+
+table(data1$comp)
+data1$comp[data1$comp == 'placebo cream'] <- 'placebo'
+data1$comp[data1$comp == 'placebo (0.9% sodium chloride)'] <- 'placebo'
+table(data1$comp)
+
+data1[is.na(data1$tint),] #visualizar NA filas
+rownames(data1) <- NULL #eliminar el numero de filas
+data1 <- data1[-c(46,47,48),]
+rownames(data1)
+
+table(data1$mean, useNA = "ifany") #visualizar NA filas
+table(data1$sd, useNA = "ifany")
+table(data1$mean1, useNA = "ifany")
+table(data1$sd1, useNA = "ifany")
+table(data1$iqr, useNA = "ifany")
+data1$iqr[data1$iqr == '12--5760'] <- '12 - 5760'
+data1$iqr[data1$iqr == '6--5760'] <- '6 - 5760'
+table(data1$iqr1, useNA = "ifany")
+data1$iqr1[data1$iqr1 == '18- 5760'] <- '18 - 5760'
+str(data1)
+data1$mean <- as.numeric(data1$mean) # convertir a variables numericas
+data1$sd <- as.numeric(data1$sd)
+data1$iqr <- as.numeric(data1$iqr)
+data1$mean1 <- as.numeric(data1$mean1) 
+data1$sd1 <- as.numeric(data1$sd1)
+data1$iqr1 <- as.numeric(data1$iqr1)
+data1$pvalue <- as.numeric(data1$pvalue)
+str(data1)
+# Eliminar si no hay mean & sd, sd & iqr
+data1[is.na(data1$mean) & is.na(data1$median),]
+data1[is.na(data1$sd) & is.na(data1$iqr),]
+data1<- data1[-c(2,5:25,29:34,44,45), ]
+rownames(data1) <- NULL
+data1[is.na(data1$mean1) & is.na(data1$median1),]
+data1[is.na(data1$sd) & is.na(data1$iqr1),]
+View(data1)
 
 ```
