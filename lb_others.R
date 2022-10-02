@@ -5,5 +5,8 @@ setwd("C:/Users/luis_/OneDrive - Universidad Central del Ecuador/Carrera Medicin
 
 # load packages and data base
 install.packages("openxlsx")
-library("openxlsx")
-read.xlsx("Data extraction cleaned.xlsx")
+install.packages("dplyr")
+library(openxlsx)
+library(dplyr)
+data <- read.xlsx("Data extraction cleaned.xlsx")
+
