@@ -1,0 +1,31 @@
+---
+title: "ib_others"
+author: "Luis Armando Figueroa"
+date: '2022-10-02'
+output: html_document
+---
+
+```{r packages, include=FALSE}
+install.packages("openxlsx")
+install.packages("dplyr")
+library(openxlsx)
+library(dplyr)
+data <- read.xlsx("Data extraction cleaned.xlsx", sheet = 3)
+```
+
+```{r cleaning, include=FALSE}
+View(data)
+# Delete 
+data1 <- data[-c(1,2,3,4),-c(7,19,20,21)]
+
+# Renamecols, RefID = id, Intervention = int, Intervention.Dose = intd, 
+# Comparison.(bupivacaine,.placebo,.other) = comp, Comparison.Dose = cd, 
+# Outcomes = outc, Total.participants.(n) = tpar, Total.Intervention.(n) = tiint, 
+# Total.comparator(n) = tcomp, SD = sd, IQR = iqr, mean.1 = mean1, SD.1 = sd1, 
+# median.1 = median1, IQR.1 = iqr1, p-value = pvalue
+names(data1) <- c('id', 'int', 'intd', 'comp', 'compd', 'outc', 'tpart', 'tint', 
+                  'tcomp', 'mean', 'sd', 'median', 'iqr', 'mean1', 'sd1', 'median1', 
+                  'iqr1', 'pvalue')
+data1$tpart <- data1$tint + data1$tcomp
+
+```
