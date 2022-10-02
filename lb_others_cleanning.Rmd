@@ -2,7 +2,9 @@
 title: "ib_others"
 author: "Luis Armando Figueroa"
 date: '2022-10-02'
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r packages, include=FALSE}
@@ -10,10 +12,12 @@ install.packages("openxlsx")
 install.packages("dplyr")
 library(openxlsx)
 library(dplyr)
-data <- read.xlsx("Data extraction cleaned.xlsx", sheet = 3)
 ```
 
-```{r cleaning, include=FALSE}
+# Continous outcome cleanning data 
+
+```{r cleaning of Continous outcome, include=FALSE}
+data <- read.xlsx("Data extraction cleaned.xlsx", sheet = 3)
 View(data)
 # Delete 
 data1 <- data[-c(1,2,3,4),-c(7,19,20,21)]
@@ -28,8 +32,10 @@ names(data1) <- c('id', 'int', 'intd', 'comp', 'compd', 'outc', 'tpart', 'tint',
                   'tcomp', 'mean', 'sd', 'median', 'iqr', 'mean1', 'sd1', 'median1', 
                   'iqr1', 'pvalue')
 
+# Complete total participants with tint + tcomp
 data1$tpart <- data1$tint + data1$tcomp
 
+# Dejar variables a una sola unidad
 table(data1$intd) #Buscando fusionar o eliminar filas
 data1$intd[data1$intd == '199 mg'] <- '199'
 data1$intd[data1$intd == '266 mg'] <- '266'
@@ -37,13 +43,14 @@ data1$intd[data1$intd == '300 mg'] <- '300'
 data1$intd[data1$intd == '66 mg'] <- '66'
 table(data1$intd)
 
+# Fusionar distintos placebo como un unico placebo general
 table(data1$comp)
 data1$comp[data1$comp == 'placebo cream'] <- 'placebo'
 data1$comp[data1$comp == 'placebo (0.9% sodium chloride)'] <- 'placebo'
 table(data1$comp)
 
 data1[is.na(data1$tpart),] #visualizar NA filas
-data1 <- data1[-c(46,47,48),]
+data1 <- data1[-c(46,47,48),] 
 rownames(data1)
 
 table(data1$mean, useNA = "ifany") #visualizar NA filas
@@ -71,6 +78,61 @@ data1<- data1[-c(2,5:25,29:34,44,45), ]
 rownames(data1) <- NULL
 data1[is.na(data1$mean1) & is.na(data1$median1),]
 data1[is.na(data1$sd) & is.na(data1$iqr1),]
-View(data1)
+```
 
+```{r cleaning of Continous outcome, include=T}
+View(data1)
+```
+
+# Dichotomus outcome cleanning data
+
+```{r cleaning of Di outcomes, include=FALSE}
+datad <- read.xlsx("Data extraction cleaned.xlsx", sheet = 4)
+View(datad)
+
+# Eliminamos los que tenian pre-operatorio diferente
+data2 <- datad[-c(1,2), -7] 
+rownames(data2) <- NULL
+
+# Renamecols, RefID = id, Intervention = int, Intervention.Dose = intd, 
+# Comparison = comp, Comparison.Dose = cd, Outcomes:.adverse.effects = outc, 
+# Total.participants.(n) = tpar, Total.Intervention.(n) = tint, 
+# Total.comparator(n) = tcomp, n = n, SD = sd, n = n1, SD = sd1, Mean.difference = md,
+# 95%.CI.LL = ci.ll, 95%.CI.UL = ci.ul, p-value = pvalue
+names(data2) <- c('id', 'int', 'intd', 'comp', 'compd', 'outc', 'tpart', 'tint', 
+                  'tcomp', 'n', 'sd', 'n1', 'sd1', 'md', 'ci.ll', 'ci.ul', 'pvalue')
+
+# Complete total participants with tint + tcomp
+data2$tpart <- data2$tint + data2$tcomp
+
+# Dosis de intervencion en una sola unidad
+table(data2$intd)
+data2$intd[data2$intd == '199 mg'] <- '199'
+data2$intd[data2$intd == '266 mg'] <- '266'
+data2$intd[data2$intd == '300 mg'] <- '300'
+data2$intd[data2$intd == '66 mg'] <- '66'
+table(data2$intd)
+
+# Fusionar distintos placebo como un unico placebo general
+table(data2$comp) # Preguntar si ponemos como multimodal al lb + aloe vera
+data2$comp[data2$comp == 'placebo cream'] <- 'placebo'
+data2$comp[data2$comp == 'placebo (0.9% sodium chloride)'] <- 'placebo'
+table(data2$comp)
+
+# Poner 0 como NA
+table(data2$n)
+data2$n[data2$n == '0'] <- NA
+table(data2$n, useNA = "ifany") 
+
+table(data2$sd)
+data2$sd[data2$sd == '0'] <- NA
+table(data2$sd, useNA = "ifany")  
+
+table(data2$n1)
+data2$n1[data2$n1 == '0'] <- NA
+table(data2$n1, useNA = "ifany") 
+
+table(data2$sd1)
+data2$sd1[data2$sd1 == '0'] <- NA
+table(data2$sd1, useNA = "ifany") 
 ```
