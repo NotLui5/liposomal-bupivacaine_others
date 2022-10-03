@@ -4,7 +4,6 @@ author: "Luis Armando Figueroa"
 date: '2022-10-02'
 output:
   pdf_document: default
-  html_document: default
 ---
 
 ```{r packages, include=FALSE}
@@ -71,7 +70,7 @@ cont1$comp[cont1$comp == 'placebo cream'] <- 'placebo'
 cont1$comp[cont1$comp == 'placebo (0.9% sodium chloride)'] <- 'placebo'
 table(cont1$comp)
 
-cont1[is.na(cont1$tpart),] #visualizar NA filas
+cont1[is.na(cont1$tpart), ] #visualizar NA filas
 cont1 <- cont1[-c(46,47,48),] 
 rownames(cont1)
 
@@ -117,8 +116,9 @@ cont1[is.na(cont1$mean1) & is.na(cont1$median1),]
 cont1[is.na(cont1$sd) & is.na(cont1$iqr1),]
 ```
 
-```{r cleaning of Continous outcome, include=T}
-View(cont1)
+```{r cleaning of Continous outcome}
+print(cont1)
+print(cont2)
 ```
 
 # Dichotomus outcome cleanning data
@@ -171,4 +171,8 @@ dic1$intd <- as.numeric(dic1$intd)
 dic1$e1 <- as.numeric(dic1$e1)
 dic1$e2 <- as.numeric(dic1$e2)
 str(dic1)
+```
+
+```{r cleaning of Continous outcome}
+print(dic1)
 ```
