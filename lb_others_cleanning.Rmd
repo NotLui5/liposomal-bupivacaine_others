@@ -7,13 +7,11 @@ output:
 ---
 
 ```{r packages, include=FALSE}
-install.packages("openxlsx")
-install.packages("dplyr")
+library(metafor)
 library(openxlsx)
+library(forestplot)
 library(dplyr)
 ```
-
-# Continous outcome cleanning data 
 
 ```{r cleaning of Continous outcome, include=FALSE}
 data <- read.xlsx("Data extraction cleaned.xlsx", sheet = 3)
@@ -70,6 +68,7 @@ cont1$comp[cont1$comp == 'placebo cream'] <- 'placebo'
 cont1$comp[cont1$comp == 'placebo (0.9% sodium chloride)'] <- 'placebo'
 table(cont1$comp)
 
+rownames(cont1) <- NULL
 cont1[is.na(cont1$tpart), ] #visualizar NA filas
 cont1 <- cont1[-c(46,47,48),] 
 rownames(cont1)
@@ -80,48 +79,56 @@ table(cont1$sd, useNA = "ifany")
 table(cont1$mean1, useNA = "ifany")
 table(cont1$sd1, useNA = "ifany")
 table(cont1$iqr, useNA = "ifany")
-cont1$iqr[cont1$iqr == '12--5760'] <- '12 - 5760'
-cont1$iqr[cont1$iqr == '6--5760'] <- '6 - 5760'
+cont1$iqr[cont1$iqr == '12--5760'] <- '12-5760'
+cont1$iqr[cont1$iqr == '6--5760 '] <- '6-5760'
+table(cont1$iqr, useNA = "ifany")
 table(cont1$iqr1, useNA = "ifany")
 cont1$iqr1[cont1$iqr1 == '18- 5760'] <- '18 - 5760'
+table(cont1$iqr1, useNA = "ifany")
 
 # convertir a variables numericas
 str(cont1)
 cont1$intd <- as.numeric(cont1$intd) 
-cont1$mean <- as.numeric(cont1$mean) 
-cont1$sd <- as.numeric(cont1$sd)
-cont1$iqr <- as.numeric(cont1$iqr)
-cont1$mean1 <- as.numeric(cont1$mean1) 
-cont1$sd1 <- as.numeric(cont1$sd1)
-cont1$iqr1 <- as.numeric(cont1$iqr1)
-cont1$pvalue <- as.numeric(cont1$pvalue)
-str(cont1)
+# cont1$mean <- as.numeric(cont1$mean) 
+# cont1$sd <- as.numeric(cont1$sd)
+# cont1$iqr <- as.numeric(cont1$iqr)
+# cont1$mean1 <- as.numeric(cont1$mean1) 
+# cont1$sd1 <- as.numeric(cont1$sd1)
+# cont1$iqr1 <- as.numeric(cont1$iqr1)
+# cont1$pvalue <- as.numeric(cont1$pvalue)
 
 str(cont2)
-cont2$intd <- as.numeric(cont2$intd)
-cont2$mean <- as.numeric(cont2$mean) 
-cont2$sd <- as.numeric(cont2$sd)
-cont2$mean1 <- as.numeric(cont2$mean1) 
-cont2$sd1 <- as.numeric(cont2$sd1)
-cont2$pvalue <- as.numeric(cont2$pvalue)
-cont2$median1 <- as.numeric(cont2$median1) 
+# cont2$intd <- as.numeric(cont2$intd)
+# cont2$mean <- as.numeric(cont2$mean) 
+# cont2$sd <- as.numeric(cont2$sd)
+# cont2$mean1 <- as.numeric(cont2$mean1) 
+# cont2$sd1 <- as.numeric(cont2$sd1)
+# cont2$pvalue <- as.numeric(cont2$pvalue)
+# cont2$median1 <- as.numeric(cont2$median1) 
 str(cont2)
 
 # Eliminar si no hay mean & sd, sd & iqr
 cont1[is.na(cont1$mean) & is.na(cont1$median),]
 cont1[is.na(cont1$sd) & is.na(cont1$iqr),]
-cont1<- cont1[-c(2,5:25,29:34,44,45), ]
+cont1 <- cont1[-c(2,5, 7, 8:10, 12:15, 17:25, 29:34, 44,45), ]
 rownames(cont1) <- NULL
 cont1[is.na(cont1$mean1) & is.na(cont1$median1),]
-cont1[is.na(cont1$sd) & is.na(cont1$iqr1),]
+cont1[is.na(cont1$sd1) & is.na(cont1$iqr1),]
+
 ```
 
-```{r cleaning of Continous outcome}
-print(cont1)
-print(cont2)
+```{r analysis outcomes, include=FALSE}
+# Agrupar outcomes -> Time to First Opioid  
+datac_tfp <- cont1[c(4,5,6), ]
+datac_tfp
+
+dat_tfp <- escalc(measure="MD", 
+               m1i=mean_post1, m2i = mean_post2, 
+               sd1i  = sd_post1, sd2i = sd_post2, 
+               n1i = n1, n2i= n2, data=database)
 ```
 
-# Dichotomus outcome cleanning data
+
 
 ```{r cleaning of Dichotomus outcomes, include=FALSE}
 data2 <- read.xlsx("Data extraction cleaned.xlsx", sheet = 4)
@@ -156,23 +163,46 @@ dic1$comp[dic1$comp == 'placebo cream'] <- 'placebo'
 dic1$comp[dic1$comp == 'placebo (0.9% sodium chloride)'] <- 'placebo'
 table(dic1$comp)
 
-# Poner 0 como NA
-table(dic1$e1)
-dic1$e1[dic1$e1 == '0'] <- NA
-table(dic1$e1, useNA = "ifany") 
-
-table(dic1$e2)
-dic1$e2[dic1$e2 == '0'] <- NA
-table(dic1$e2, useNA = "ifany") 
-
 # Convert to numeric variables
 str(dic1)
 dic1$intd <- as.numeric(dic1$intd)
 dic1$e1 <- as.numeric(dic1$e1)
 dic1$e2 <- as.numeric(dic1$e2)
 str(dic1)
+
+# Mas de dos efectos adversos <- agrupar outcomes 
+datad_2ae <- dic1[c(1,8,15,22),]
+datad_2ae
+
+# Nausea/vomitos  <- agrupar outcomes
+datad_vn <- dic1[c(11, 18, 25, 29, 31, 5, 12, 19, 26, 37), ]
+datad_vn
+
+# rescate de medicacion se elimina porque solo hay un articulo
+# others advers effects <- agrupar outcomes
+
 ```
 
-```{r cleaning of Continous outcome}
-print(dic1)
+# Dichotomus outcome_Adverse effects_Metaanalisis 
+
+```{r or_dichotomus outcomes_adverse effects, include=FALSE}
+# 2 Adversse effects
+dat_2ae <- escalc(measure="OR", ai=n1, bi=n2,
+              ci=e1, di=e2, data=datad_2ae)
+dat_2ae <- summary(dat_2ae)
+dat_2ae
+```
+
+```{r meta_dichotomus outcomes_adverse effects, include=FALSE}
+# 2 Adversse effects
+meta_dat2ae_reml <- rma(yi, vi, method="REML", data=dat_2ae, test='knha')
+meta_dat2ae_reml
+
+```
+
+```{r predict_dichotomus outcomes_adverse effects, include=FALSE}
+# 2 Adversse effects
+meta_2ae <- predict(meta_dat2ae_reml, transf = exp, digits = 2)
+meta_2ae
+
 ```
