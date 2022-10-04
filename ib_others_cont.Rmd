@@ -1,9 +1,8 @@
 ---
-title: "ib_others"
+title: "ib_others_cont"
 author: "Luis Armando Figueroa"
-date: '2022-10-02'
-output:
-  pdf_document: default
+date: '2022-10-04'
+output: html_document
 ---
 
 ```{r packages, include=FALSE}
@@ -126,83 +125,4 @@ dat_tfp <- escalc(measure="MD",
                m1i=mean_post1, m2i = mean_post2, 
                sd1i  = sd_post1, sd2i = sd_post2, 
                n1i = n1, n2i= n2, data=database)
-```
-
-
-
-```{r cleaning of Dichotomus outcomes, include=FALSE}
-data2 <- read.xlsx("Data extraction cleaned.xlsx", sheet = 4)
-View(data2)
-
-# Eliminamos los que tenian pre-operatorio diferente y datos no dicotomicos
-colnames(data2)
-dic1 <- data2[-c(1,2,36,38,40), -c(7,12,14,15,16,17,18)] 
-rownames(dic1) <- NULL
-
-# Renamecols, RefID = id, Intervention = int, Intervention.Dose = intd, 
-# Comparison = comp, Comparison.Dose = cd, Outcomes:.adverse.effects = outc, 
-# Total.participants.(n) = tpart, Total.Intervention.(n) = n1, 
-# Total.comparator(n) = n2, n = e1, n = e2
-names(dic1) <- c('id', 'int', 'intd', 'comp', 'compd', 'outc', 'tpart', 'n1', 
-                  'n2', 'e1', 'e2')
-
-# Complete total participants with tint + tcomp
-dic1$tpart <- dic1$n1 + dic1$n2
-
-# Dosis de intervencion en una sola unidad
-table(dic1$intd)
-dic1$intd[dic1$intd == '199 mg'] <- '199'
-dic1$intd[dic1$intd == '266 mg'] <- '266'
-dic1$intd[dic1$intd == '300 mg'] <- '300'
-dic1$intd[dic1$intd == '66 mg'] <- '66'
-table(dic1$intd)
-
-# Fusionar distintos placebo como un unico placebo general
-table(dic1$comp) # Preguntar si ponemos como multimodal al lb + aloe vera
-dic1$comp[dic1$comp == 'placebo cream'] <- 'placebo'
-dic1$comp[dic1$comp == 'placebo (0.9% sodium chloride)'] <- 'placebo'
-table(dic1$comp)
-
-# Convert to numeric variables
-str(dic1)
-dic1$intd <- as.numeric(dic1$intd)
-dic1$e1 <- as.numeric(dic1$e1)
-dic1$e2 <- as.numeric(dic1$e2)
-str(dic1)
-
-# Mas de dos efectos adversos <- agrupar outcomes 
-datad_2ae <- dic1[c(1,8,15,22),]
-datad_2ae
-
-# Nausea/vomitos  <- agrupar outcomes
-datad_vn <- dic1[c(11, 18, 25, 29, 31, 5, 12, 19, 26, 37), ]
-datad_vn
-
-# rescate de medicacion se elimina porque solo hay un articulo
-# others advers effects <- agrupar outcomes
-
-```
-
-# Dichotomus outcome_Adverse effects_Metaanalisis 
-
-```{r or_dichotomus outcomes_adverse effects, include=FALSE}
-# 2 Adversse effects
-dat_2ae <- escalc(measure="OR", ai=n1, bi=n2,
-              ci=e1, di=e2, data=datad_2ae)
-dat_2ae <- summary(dat_2ae)
-dat_2ae
-```
-
-```{r meta_dichotomus outcomes_adverse effects, include=FALSE}
-# 2 Adversse effects
-meta_dat2ae_reml <- rma(yi, vi, method="REML", data=dat_2ae, test='knha')
-meta_dat2ae_reml
-
-```
-
-```{r predict_dichotomus outcomes_adverse effects, include=FALSE}
-# 2 Adversse effects
-meta_2ae <- predict(meta_dat2ae_reml, transf = exp, digits = 2)
-meta_2ae
-
 ```

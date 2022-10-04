@@ -1,0 +1,165 @@
+---
+title: "ib_others_dic"
+author: "Luis Armando Figueroa"
+date: '2022-10-02'
+output: html_document
+---
+
+```{r packages, include=FALSE}
+library(metafor)
+library(openxlsx)
+library(forestplot)
+library(dplyr)
+```
+
+```{r cleaning of Dichotomus outcomes, include=FALSE}
+data2 <- read.xlsx("Data extraction cleaned.xlsx", sheet = 4)
+View(data2)
+
+# Eliminamos los que tenian pre-operatorio diferente y datos no dicotomicos
+colnames(data2)
+dic1 <- data2[-c(1,2,36,38,40), -c(7,12,14,15,16,17,18)] 
+rownames(dic1) <- NULL
+
+# Renamecols, RefID = id, Intervention = int, Intervention.Dose = intd, 
+# Comparison = comp, Comparison.Dose = cd, Outcomes:.adverse.effects = outc, 
+# Total.participants.(n) = tpart, Total.Intervention.(n) = n1, 
+# Total.comparator(n) = n2, n = e1, n = e2
+names(dic1) <- c('id', 'int', 'intd', 'comp', 'compd', 'outc', 'tpart', 'n1', 
+                  'n2', 'e1', 'e2')
+
+# Complete total participants with tint + tcomp
+dic1$tpart <- dic1$n1 + dic1$n2
+
+# Dosis de intervencion en una sola unidad
+table(dic1$intd)
+dic1$intd[dic1$intd == '199 mg'] <- '199'
+dic1$intd[dic1$intd == '266 mg'] <- '266'
+dic1$intd[dic1$intd == '300 mg'] <- '300'
+dic1$intd[dic1$intd == '66 mg'] <- '66'
+table(dic1$intd)
+
+# Fusionar distintos placebo como un unico placebo general
+table(dic1$comp) # Preguntar si ponemos como multimodal al lb + aloe vera
+dic1$comp[dic1$comp == 'placebo cream'] <- 'placebo'
+dic1$comp[dic1$comp == 'placebo (0.9% sodium chloride)'] <- 'placebo'
+table(dic1$comp)
+
+# Convert to numeric variables
+str(dic1)
+dic1$intd <- as.numeric(dic1$intd)
+dic1$e1 <- as.numeric(dic1$e1)
+dic1$e2 <- as.numeric(dic1$e2)
+str(dic1)
+
+# Mas de dos efectos adversos <- agrupar outcomes 
+datad_2ae <- dic1[c(1,8,15,22),]
+datad_2ae
+
+# Nausea/vomitos  <- agrupar outcomes
+datad_vn <- dic1[c(11, 18, 25, 29, 31, 5, 12, 19, 26, 37), ]
+datad_vn
+  
+# Pain <- Include: Painful defecation, Pain
+datad_p <- dic1[c(4,30,32),]
+datad_p
+
+# Anal hemorragy <- Include Anal hemorragy, Rectal discharge
+datad_ah <- dic1[c(3,7,14,21,28), ]
+datad_ah
+
+# Gastrointestinal AEs 
+datad_ga <- dic1[c(2,9,16,23), ]
+datad_ga
+
+#Flatulence 
+datad_f <- dic1[c(13,20,27), ]
+datad_f
+
+# Analgesic rescue medication 12h post 
+datad_rm <- dic1[c(33, 34, 35, 36), ]
+datad_rm
+```
+
+```{r or_dichotomus outcomes_adverse effects, include=FALSE}
+dat_2ae <- escalc(measure="OR", ai=n1, bi=n2,
+              ci=e1, di=e2, data=datad_2ae)
+dat_2ae <- summary(dat_2ae)
+dat_2ae
+
+dat_vn <- escalc(measure="OR", ai=n1, bi=n2,
+              ci=e1, di=e2, data=datad_vn)
+dat_vn <- summary(dat_vn)
+dat_vn
+
+dat_p <- escalc(measure="OR", ai=n1, bi=n2,
+              ci=e1, di=e2, data=datad_p)
+dat_p <- summary(dat_p)
+dat_p
+
+dat_ah <- escalc(measure="OR", ai=n1, bi=n2,
+              ci=e1, di=e2, data=datad_ah)
+dat_ah <- summary(dat_ah)
+dat_ah
+
+dat_ga <- escalc(measure="OR", ai=n1, bi=n2,
+              ci=e1, di=e2, data=datad_ga)
+dat_ga <- summary(dat_ga)
+dat_ga
+
+dat_f <- escalc(measure="OR", ai=n1, bi=n2,
+              ci=e1, di=e2, data=datad_f)
+dat_f <- summary(dat_f)
+dat_f
+
+dat_rm <- escalc(measure="OR", ai=n1, bi=n2,
+              ci=e1, di=e2, data=datad_rm)
+dat_rm <- summary(dat_rm)
+dat_rm
+```
+
+```{r meta_dichotomus outcomes_adverse effects, include=FALSE}
+meta_dat2ae_reml <- rma(yi, vi, method="REML", data=dat_2ae, test='knha')
+meta_dat2ae_reml
+
+meta_datvn_reml <- rma(yi, vi, method="REML", data=dat_vn, test='knha')
+meta_datvn_reml
+
+meta_datp_reml <- rma(yi, vi, method="REML", data=dat_p, test='knha')
+meta_datp_reml
+
+meta_datah_reml <- rma(yi, vi, method="REML", data=dat_ah, test='knha')
+meta_datah_reml
+
+meta_datga_reml <- rma(yi, vi, method="REML", data=dat_ga, test='knha')
+meta_datga_reml
+
+meta_datf_reml <- rma(yi, vi, method="REML", data=dat_f, test='knha')
+meta_datf_reml
+
+meta_datrm_reml <- rma(yi, vi, method="REML", data=dat_rm, test='knha')
+meta_datrm_reml
+```
+
+```{r predict_dichotomus outcomes_adverse effects, include=FALSE}
+meta_2ae <- predict(meta_dat2ae_reml, transf = exp, digits = 2)
+meta_2ae
+
+meta_vn <- predict(meta_datvn_reml, transf = exp, digits = 2)
+meta_vn
+
+meta_p <- predict(meta_datp_reml, transf = exp, digits = 2)
+meta_p
+
+meta_ah <- predict(meta_datah_reml, transf = exp, digits = 2)
+meta_ah
+
+meta_ga <- predict(meta_datga_reml, transf = exp, digits = 2)
+meta_ga
+
+meta_f <- predict(meta_datf_reml, transf = exp, digits = 2)
+meta_f
+
+meta_rm <- predict(meta_datrm_reml, transf = exp, digits = 2)
+meta_rm
+```
