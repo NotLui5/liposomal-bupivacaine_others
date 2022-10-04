@@ -52,32 +52,34 @@ dic1$e1 <- as.numeric(dic1$e1)
 dic1$e2 <- as.numeric(dic1$e2)
 str(dic1)
 
-# Mas de dos efectos adversos <- agrupar outcomes 
-datad_2ae <- dic1[c(1,8,15,22),]
+# Solo inclkuir un estudio de cada ID, primera eleccion el que tenga más tpart
+# Luego se hará un análisis de sensibilidad y no se harán
+
+# Mas de dos efectos adversos <- Patients with _x0002_1 AEa 
+datad_2ae <- dic1[c(1,15),] # 8, 22 <- otros estudios
 datad_2ae
 
 # Nausea/vomitos  <- agrupar outcomes
-datad_vn <- dic1[c(11, 18, 25, 29, 31, 5, 12, 19, 26, 37), ]
+datad_vn <- dic1[c(18, 31, 5, 37), ] # 11, 25, 29, 12, 19, 26, 
 datad_vn
   
 # Pain <- Include: Painful defecation, Pain
-datad_p <- dic1[c(4,30,32),]
+datad_p <- dic1[c(4,32), ] # 30,
 datad_p
 
 # Anal hemorragy <- Include Anal hemorragy, Rectal discharge
-datad_ah <- dic1[c(3,7,14,21,28), ]
+datad_ah <- dic1[c(7,21), ] #3, 14, 28
 datad_ah
 
 # Gastrointestinal AEs 
-datad_ga <- dic1[c(2,9,16,23), ]
+datad_ga <- dic1[c(2,16), ] # 9, 23
 datad_ga
 
 #Flatulence 
-datad_f <- dic1[c(13,20,27), ]
-datad_f
+# datad_f <- dic1[c(13,20,27), ] #NO SE PUEDE ANALIZAR PORQUE SON MISMO ID
 
-# Analgesic rescue medication 12h post 
-datad_rm <- dic1[c(33, 34, 35, 36), ]
+# Analgesic rescue medication 12h post  + Need aditional narcaotic in PACU
+datad_rm <- dic1[c(33, 36), ] #34, 35
 datad_rm
 ```
 
