@@ -60,16 +60,19 @@ datad_2ae <- dic1[c(1,15),] # 8, 22 <- otros estudios
 datad_2ae
 
 # Nausea/vomitos  <- agrupar outcomes
-datad_vn <- dic1[c(18, 31, 5, 37), ] # 11, 25, 29, 12, 19, 26, 
+datad_vn <- dic1[c(25, 29, 5, 19), ] # 11, 18, 25, 31, 12, 37, 26, 
 datad_vn
   
 # Pain <- Include: Painful defecation, Pain
-datad_p <- dic1[c(4,32), ] # 30,
+datad_p <- dic1[c(4,30), ] # 32
 datad_p
 
 # Anal hemorragy <- Include Anal hemorragy, Rectal discharge
-datad_ah <- dic1[c(7,21), ] #3, 14, 28
+datad_ah <- dic1[c(3,14), ] # 7, 21, 28
 datad_ah
+
+datad_ah1 <- dic1[c(7,21), ] # 3, 14, 28 ANALISIS SENSIBILIDAD
+datad_ah1 
 
 # Gastrointestinal AEs 
 datad_ga <- dic1[c(2,16), ] # 9, 23
@@ -104,15 +107,21 @@ dat_ah <- escalc(measure="OR", ai=n1, bi=n2,
 dat_ah <- summary(dat_ah)
 dat_ah
 
+dat_ah1 <- escalc(measure="OR", ai=n1, bi=n2,
+              ci=e1, di=e2, data=datad_ah1) #ANALISIS SENSIBILIDAD
+dat_ah1 <- summary(dat_ah1)
+dat_ah1
+
+
 dat_ga <- escalc(measure="OR", ai=n1, bi=n2,
               ci=e1, di=e2, data=datad_ga)
 dat_ga <- summary(dat_ga)
 dat_ga
 
-dat_f <- escalc(measure="OR", ai=n1, bi=n2,
-              ci=e1, di=e2, data=datad_f)
-dat_f <- summary(dat_f)
-dat_f
+# at_f <- escalc(measure="OR", ai=n1, bi=n2,
+#              ci=e1, di=e2, data=datad_f)
+# dat_f <- summary(dat_f)
+# dat_f
 
 dat_rm <- escalc(measure="OR", ai=n1, bi=n2,
               ci=e1, di=e2, data=datad_rm)
@@ -133,11 +142,14 @@ meta_datp_reml
 meta_datah_reml <- rma(yi, vi, method="REML", data=dat_ah, test='knha')
 meta_datah_reml
 
+meta_datah1_reml <- rma(yi, vi, method="REML", data=dat_ah1, test='knha') #ANALISIS SENSIBILIDAD
+meta_datah1_reml 
+
 meta_datga_reml <- rma(yi, vi, method="REML", data=dat_ga, test='knha')
 meta_datga_reml
 
-meta_datf_reml <- rma(yi, vi, method="REML", data=dat_f, test='knha')
-meta_datf_reml
+# meta_datf_reml <- rma(yi, vi, method="REML", data=dat_f, test='knha')
+# meta_datf_reml
 
 meta_datrm_reml <- rma(yi, vi, method="REML", data=dat_rm, test='knha')
 meta_datrm_reml
@@ -156,11 +168,14 @@ meta_p
 meta_ah <- predict(meta_datah_reml, transf = exp, digits = 2)
 meta_ah
 
+meta_ah1 <- predict(meta_datah1_reml, transf = exp, digits = 2) #ANALISIS SENSIBILIDAD 
+meta_ah
+
 meta_ga <- predict(meta_datga_reml, transf = exp, digits = 2)
 meta_ga
 
-meta_f <- predict(meta_datf_reml, transf = exp, digits = 2)
-meta_f
+#meta_f <- predict(meta_datf_reml, transf = exp, digits = 2)
+#meta_f
 
 meta_rm <- predict(meta_datrm_reml, transf = exp, digits = 2)
 meta_rm
