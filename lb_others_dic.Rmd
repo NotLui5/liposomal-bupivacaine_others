@@ -1,15 +1,22 @@
 ---
-title: "ib_others_dic"
-author: "Luis Armando Figueroa"
-date: '2022-10-02'
-output: html_document
+title: "liposomal bupivacaine vs others"
+knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_file = paste0(dirname(inputFile),'/README.md')) })
+output: github_document
 ---
+
+<i>Analysis and visualization developed by [Luis A. Figueroa](https://twitter.com/LuisFig1706) and [Oscar J. Ponce](https://twitter.com/PonceOJ)</i>
+
+The purpose of this site is to make our meta-analysis as transparent as possible. All information or documents used, from the protocol to the final publication, will be available here. If further information is needed, please do not hesitate to contact us.
+
 
 ```{r packages, include=FALSE}
 library(metafor)
 library(openxlsx)
 library(forestplot)
 library(dplyr)
+
+knitr::opts_chunk$set(fig.path = "8 Output Figures/", dev='svg') # dev = 'png'
+
 ```
 
 ```{r cleaning of Dichotomus outcomes, include=FALSE}
@@ -57,32 +64,38 @@ str(dic1)
 
 # Mas de dos efectos adversos <- Patients with _x0002_1 AEa 
 datad_2ae <- dic1[c(1,15),] # 8, 22 <- otros estudios
+datad_2ae$Author <- c("Gorfine, et. al", "Haas, et. al")
 datad_2ae
 
 # Nausea/vomitos  <- agrupar outcomes
-datad_vn <- dic1[c(25, 29, 5, 19), ] # 11, 18, 25, 31, 12, 37, 26, 
+datad_vn <- dic1[c(25, 29, 5), ] # 11, 18, 25, 31, 12, 37, 26, 19
+datad_vn$Author <- c("Haas, et. al", "Shariat, et. al", "Gorfine, et. al")
 datad_vn
-  
+
 # Pain <- Include: Painful defecation, Pain
 datad_p <- dic1[c(4,30), ] # 32
+datad_p$Author <- c("Gorfine, et. al", "Shariat, et. al")
 datad_p
 
-# Anal hemorragy <- Include Anal hemorragy, Rectal discharge
-datad_ah <- dic1[c(3,14), ] # 7, 21, 28
+# Anal hemorragy <- Include Anal hemorragy and Rectal hemorrhage
+datad_ah <- dic1[c(3,28), ] # 7, 21, 14
+datad_ah$Author <- c("Gorfine, et. al", "Haas, et. al")
 datad_ah
 
-datad_ah1 <- dic1[c(7,21), ] # 3, 14, 28 ANALISIS SENSIBILIDAD
-datad_ah1 
+# datad_ah1 <- dic1[c(7,21), ] # 3, 14, 28 ANALISIS SENSIBILIDAD
+# datad_ah1 # NO se hace porque dosis es dijerente
 
 # Gastrointestinal AEs 
 datad_ga <- dic1[c(2,16), ] # 9, 23
+datad_ga$Author <- c("Gorfine, et. al", "Haas, et. al")
 datad_ga
 
 #Flatulence 
 # datad_f <- dic1[c(13,20,27), ] #NO SE PUEDE ANALIZAR PORQUE SON MISMO ID
 
-# Analgesic rescue medication 12h post  + Need aditional narcaotic in PACU
+# Analgesic rescue medication 12h post + Need aditional narcaotic in PACU
 datad_rm <- dic1[c(33, 36), ] #34, 35
+datad_rm$Author <- c("GorfineKanlıöz, et. al", "Finucan, et. al")
 datad_rm
 ```
 
@@ -107,10 +120,10 @@ dat_ah <- escalc(measure="OR", ai=n1, bi=n2,
 dat_ah <- summary(dat_ah)
 dat_ah
 
-dat_ah1 <- escalc(measure="OR", ai=n1, bi=n2,
-              ci=e1, di=e2, data=datad_ah1) #ANALISIS SENSIBILIDAD
-dat_ah1 <- summary(dat_ah1)
-dat_ah1
+#dat_ah1 <- escalc(measure="OR", ai=n1, bi=n2,
+#              ci=e1, di=e2, data=datad_ah1) #ANALISIS SENSIBILIDAD
+#dat_ah1 <- summary(dat_ah1)
+#dat_ah1
 
 
 dat_ga <- escalc(measure="OR", ai=n1, bi=n2,
@@ -142,8 +155,8 @@ meta_datp_reml
 meta_datah_reml <- rma(yi, vi, method="REML", data=dat_ah, test='knha')
 meta_datah_reml
 
-meta_datah1_reml <- rma(yi, vi, method="REML", data=dat_ah1, test='knha') #ANALISIS SENSIBILIDAD
-meta_datah1_reml 
+#meta_datah1_reml <- rma(yi, vi, method="REML", data=dat_ah1, test='knha') #ANALISIS SENSIBILIDAD
+#meta_datah1_reml 
 
 meta_datga_reml <- rma(yi, vi, method="REML", data=dat_ga, test='knha')
 meta_datga_reml
@@ -168,8 +181,8 @@ meta_p
 meta_ah <- predict(meta_datah_reml, transf = exp, digits = 2)
 meta_ah
 
-meta_ah1 <- predict(meta_datah1_reml, transf = exp, digits = 2) #ANALISIS SENSIBILIDAD 
-meta_ah
+#meta_ah1 <- predict(meta_datah1_reml, transf = exp, digits = 2) #ANALISIS SENSIBILIDAD 
+#meta_ah
 
 meta_ga <- predict(meta_datga_reml, transf = exp, digits = 2)
 meta_ga
@@ -180,3 +193,224 @@ meta_ga
 meta_rm <- predict(meta_datrm_reml, transf = exp, digits = 2)
 meta_rm
 ```
+
+<br>
+<h2>Individual Forestplots</h2>
+
+
+<details>
+
+<summary><b>Figure 1 -</b> Adverse effects of liposomal bupivacaine vs others</summary>
+<br>
+
+```{r overall_graph_REML, echo=FALSE, fig.height = 11.6, fig.width = 13.5}
+col1f <- c("Author", datad_2ae$Author, 
+      paste("Overall Odds Ratio for", meta_dat2ae_reml$k, "studies"),
+      paste("(Tau^2 = ", (formatC(meta_dat2ae_reml$tau2, digits=2, format="f")), ", df = ", 
+            (meta_dat2ae_reml$parms),
+            ", p ", (ifelse(meta_dat2ae_reml$QEp < 0.001, 
+                            paste("< 0.001"),
+                            paste("= ", formatC(meta_dat2ae_reml$QEp, digits=3, format="f")))),
+            "; ", "I^2", " = ", (formatC(meta_dat2ae_reml$I2, digits=1, format="f")), "%)"),
+      NA, NA,
+      "Author", datad_vn$Author, 
+      paste("Overall Odds Ratio for", meta_datvn_reml$k, "studies"),
+      paste("(Tau^2 = ", (formatC(meta_datvn_reml$tau2, digits=2, format="f")), ", df = ", 
+            (meta_datvn_reml$parms),
+            ", p ", (ifelse(meta_datvn_reml$QEp < 0.001, 
+                            paste("< 0.001"),
+                            paste("= ", formatC(meta_datvn_reml$QEp, digits=3, format="f")))),
+            "; ", "I^2", " = ", (formatC(meta_datvn_reml$I2, digits=1, format="f")), "%)"),
+      NA, NA,
+      "Author", datad_p$Author, 
+      paste("Overall Odds Ratio for", meta_datp_reml$k, "studies"),
+      paste("(Tau^2 = ", (formatC(meta_datp_reml$tau2, digits=2, format="f")), ", df = ", 
+            (meta_datp_reml$parms),
+            ", p ", (ifelse(meta_datp_reml$QEp < 0.001, 
+                            paste("< 0.001"),
+                            paste("= ", formatC(meta_datp_reml$QEp, digits=3, format="f")))),
+            "; ", "I^2", " = ", (formatC(meta_datp_reml$I2, digits=1, format="f")), "%)"),
+      NA, NA,
+      "Author", datad_ah$Author, 
+      paste("Overall Odds Ratio for", meta_datah_reml$k, "studies"),
+      paste("(Tau^2 = ", (formatC(meta_datah_reml$tau2, digits=2, format="f")), ", df = ", 
+            (meta_datah_reml$parms),
+            ", p ", (ifelse(meta_datah_reml$QEp < 0.001, 
+                            paste("< 0.001"),
+                            paste("= ", formatC(meta_datah_reml$QEp, digits=3, format="f")))),
+            "; ", "I^2", " = ", (formatC(meta_datah_reml$I2, digits=1, format="f")), "%)"),
+      NA, NA,
+      "Author", datad_ga$Author, 
+      paste("Overall Odds Ratio for", meta_datga_reml$k, "studies"),
+      paste("(Tau^2 = ", (formatC(meta_datga_reml$tau2, digits=2, format="f")), ", df = ", 
+            (meta_datga_reml$parms),
+            ", p ", (ifelse(meta_datga_reml$QEp < 0.001, 
+                            paste("< 0.001"),
+                            paste("= ", formatC(meta_datga_reml$QEp, digits=3, format="f")))),
+            "; ", "I^2", " = ", (formatC(meta_datga_reml$I2, digits=1, format="f")), "%)"),NA, NA,
+      "Author", datad_rm$Author, 
+      paste("Overall Odds Ratio for", meta_datrm_reml$k, "studies"),
+      paste("(Tau^2 = ", (formatC(meta_datrm_reml$tau2, digits=2, format="f")), ", df = ", 
+            (meta_datrm_reml$parms),
+            ", p ", (ifelse(meta_datrm_reml$QEp < 0.001, 
+                            paste("< 0.001"),
+                            paste("= ", formatC(meta_datrm_reml$QEp, digits=3, format="f")))),
+            "; ", "I^2", " = ", (formatC(meta_datrm_reml$I2, digits=1, format="f")), "%)"))
+
+col2f <- c("Liposomal Bupivacaine (n/N)",
+      paste(dat_2ae$e1,"/", dat_2ae$n1), paste0(sum(dat_2ae$e1), " / ", sum(dat_2ae$n1)), NA, 
+      NA, NA,
+      "Liposomal Bupivacaine (n/N)",
+      paste(dat_vn$e1,"/", dat_vn$n1), paste0(sum(dat_vn$e1), " / ", sum(dat_vn$n1)), NA,
+      NA, NA, 
+      "Liposomal Bupivacaine (n/N)",
+      paste(dat_p$e1,"/", dat_p$n1), paste0(sum(dat_p$e1), " / ", sum(dat_p$n1)), NA,
+      NA, NA, 
+      "Liposomal Bupivacaine (n/N)",
+      paste(dat_ah$e1,"/", dat_ah$n1), paste0(sum(dat_ah$e1), " / ", sum(dat_ah$n1)), NA,
+      NA, NA, 
+      "Liposomal Bupivacaine (n/N)",
+      paste(dat_ga$e1,"/", dat_ga$n1), paste0(sum(dat_ga$e1), " / ", sum(dat_ga$n1)), NA,
+      NA, NA, 
+      "Liposomal Bupivacaine (n/N)",
+      paste(dat_rm$e1,"/", dat_rm$n1), paste0(sum(dat_rm$e1), " / ", sum(dat_rm$n1)), NA)
+
+col3f <- c("others (n/N)",
+      paste(dat_2ae$e2,"/", dat_2ae$n2), paste0(sum(dat_2ae$e2), " / ", sum(dat_2ae$n2)), NA,
+      NA, NA,
+      "others (n/N)",
+      paste(dat_vn$e2,"/", dat_vn$n2), paste0(sum(dat_vn$e2), " / ", sum(dat_vn$n2)), NA,
+      NA, NA,
+      "others (n/N)",
+      paste(dat_p$e2,"/", dat_p$n2), paste0(sum(dat_p$e2), " / ", sum(dat_p$n2)), NA,
+      NA, NA,
+      "others (n/N)",
+      paste(dat_ah$e2,"/", dat_ah$n2), paste0(sum(dat_ah$e2), " / ", sum(dat_ah$n2)), NA,
+      NA, NA,
+      "others (n/N)",
+      paste(dat_ga$e2,"/", dat_ga$n2), paste0(sum(dat_ga$e2), " / ", sum(dat_ga$n2)), NA,
+      NA, NA,
+      "others (n/N)",
+      paste(dat_rm$e2,"/", dat_rm$n2), paste0(sum(dat_rm$e2), " / ", sum(dat_rm$n2)), NA)
+
+
+col4f <- c("Odds Ratio (95% CI)", paste0(formatC(exp(dat_2ae$yi), digits = 2, format = "f"), 
+                                        " ( ",formatC(exp(dat_2ae$ci.lb), format='f', digits=2),
+                                        " - ", formatC(exp(dat_2ae$ci.ub), format='f',digits=2), " ) "),
+          paste(formatC(meta_2ae$pred, format = 'f', digits=2),
+            "(", formatC(meta_2ae$ci.lb, format = 'f', digits = 2),
+            "-", formatC(meta_2ae$ci.ub, format = 'f', digits = 2), ")"), NA,
+          NA, NA,
+          "Odds Ratio (95% CI)", paste0(formatC(exp(dat_vn$yi), digits = 2, format = "f"), 
+                                        " ( ",formatC(exp(dat_vn$ci.lb), format='f', digits=2),
+                                        " - ", formatC(exp(dat_vn$ci.ub), format='f',digits=2), " ) "),
+          paste(formatC(meta_vn$pred, format = 'f', digits=2),
+            "(", formatC(meta_vn$ci.lb, format = 'f', digits = 2),
+            "-", formatC(meta_vn$ci.ub, format = 'f', digits = 2), ")"), NA,
+          NA, NA,
+          "Odds Ratio (95% CI)", paste0(formatC(exp(dat_p$yi), digits = 2, format = "f"), 
+                                        " ( ",formatC(exp(dat_p$ci.lb), format='f', digits=2),
+                                        " - ", formatC(exp(dat_p$ci.ub), format='f',digits=2), " ) "),
+          paste(formatC(meta_p$pred, format = 'f', digits=2),
+            "(", formatC(meta_p$ci.lb, format = 'f', digits = 2),
+            "-", formatC(meta_p$ci.ub, format = 'f', digits = 2), ")"), NA,
+          NA, NA,
+          "Odds Ratio (95% CI)", paste0(formatC(exp(dat_ah$yi), digits = 2, format = "f"), 
+                                        " ( ",formatC(exp(dat_ah$ci.lb), format='f', digits=2),
+                                        " - ", formatC(exp(dat_ah$ci.ub), format='f',digits=2), " ) "),
+          paste(formatC(meta_ah$pred, format = 'f', digits=2),
+            "(", formatC(meta_ah$ci.lb, format = 'f', digits = 2),
+            "-", formatC(meta_ah$ci.ub, format = 'f', digits = 2), ")"), NA,
+          NA, NA,
+          "Odds Ratio (95% CI)", paste0(formatC(exp(dat_ga$yi), digits = 2, format = "f"), 
+                                        " ( ",formatC(exp(dat_ga$ci.lb), format='f', digits=2),
+                                        " - ", formatC(exp(dat_ga$ci.ub), format='f',digits=2), " ) "),
+          paste(formatC(meta_ga$pred, format = 'f', digits=2),
+            "(", formatC(meta_ga$ci.lb, format = 'f', digits = 2),
+            "-", formatC(meta_ga$ci.ub, format = 'f', digits = 2), ")"), NA,
+          NA, NA,
+          "Odds Ratio (95% CI)", paste0(formatC(exp(dat_rm$yi), digits = 2, format = "f"), 
+                                        " ( ",formatC(exp(dat_rm$ci.lb), format='f', digits=2),
+                                        " - ", formatC(exp(dat_rm$ci.ub), format='f',digits=2), " ) "),
+          paste(formatC(meta_rm$pred, format = 'f', digits=2),
+            "(", formatC(meta_rm$ci.lb, format = 'f', digits = 2),
+            "-", formatC(meta_rm$ci.ub, format = 'f', digits = 2), ")"), NA)
+
+col5f <- c("Weight(%)", paste(formatC(weights(meta_dat2ae_reml), format='f', digits = 1),'%'), NA, NA,
+           NA, NA,
+           "Weight(%)", paste(formatC(weights(meta_datvn_reml), format='f', digits = 1),'%'), NA, NA,
+           NA, NA,
+           "Weight(%)", paste(formatC(weights(meta_datp_reml), format='f', digits = 1),'%'), NA, NA,
+           NA, NA,
+           "Weight(%)", paste(formatC(weights(meta_datah_reml), format='f', digits = 1),'%'), NA, NA,
+           NA, NA,
+           "Weight(%)", paste(formatC(weights(meta_datga_reml), format='f', digits = 1),'%'), NA, NA,
+           NA, NA,
+           "Weight(%)", paste(formatC(weights(meta_datrm_reml), format='f', digits = 1),'%'), NA, NA)
+
+text1f <- cbind(col1f, col2f, col3f, col4f, col5f)
+
+
+# Adding subtitles
+subtitle1 <- c("More than 2 side effects", rep(NA,4))
+subtitle2 <- c("Nausea and vomites ", rep(NA, 4))
+subtitle3 <- c("Pain", rep(NA,4))
+subtitle4 <- c("Anal bleeding", rep(NA,4))
+subtitle5 <- c("Gastrointestinal AEs", rep(NA,4))
+subtitle6 <- c("Analgesic rescue medication 12h post", rep(NA,4))
+
+text1f <- rbind(text1f[1,], subtitle1, text1f[2:7,], subtitle2, text1f[c(9:15),],
+                subtitle3, text1f[c(17:22),], subtitle4, text1f[c(24:29),],
+                subtitle5, text1f[c(31:36),], subtitle6, text1f[c(38:41),])
+rownames(text1f) <- NULL
+
+
+cf <- structure(list(
+          mean = c(rep(NA, 2), exp(dat_2ae$yi), meta_2ae$pred, rep(NA, 4), exp(dat_vn$yi), meta_vn$pred, rep(NA, 4), exp(dat_p$yi), meta_p$pred, rep(NA, 4), exp(dat_ah$yi), meta_ah$pred, rep(NA, 4), exp(dat_ga$yi), meta_ga$pred, rep(NA, 4), exp(dat_rm$yi), meta_rm$pred,NA),
+          lower = c(rep(NA, 2), exp(dat_2ae$ci.lb), meta_2ae$ci.lb, rep(NA, 4), exp(dat_vn$ci.lb), meta_vn$ci.lb, rep(NA, 4), exp(dat_p$ci.lb), meta_p$ci.lb, rep(NA, 4), exp(dat_ah$ci.lb), meta_ah$ci.lb, rep(NA, 4), exp(dat_ga$ci.lb), meta_ga$ci.lb, rep(NA,4), exp(dat_rm$ci.lb), meta_rm$ci.lb, NA),
+          upper = c(rep(NA, 2), exp(dat_2ae$ci.ub), meta_2ae$ci.ub, rep(NA, 4), exp(dat_vn$ci.ub), meta_vn$ci.ub, rep(NA, 4), exp(dat_p$ci.ub), meta_p$ci.ub, rep(NA, 4), exp(dat_ah$ci.ub), meta_ah$ci.ub, rep(NA, 4), exp(dat_ga$ci.ub), meta_ga$ci.ub, rep(NA,4), exp(dat_rm$ci.ub), meta_rm$ci.ub, NA)),
+          .Names = c("mean", "lower", "upper"),
+          row.names = c(NA, -1L*nrow(text1f)),
+          class = "data.frame")
+
+sizes1f <- c(NA, NA, (weights(meta_dat2ae_reml)*0.014), 1, rep(NA, 3),
+             NA, (weights(meta_datvn_reml)*0.012), 1, rep(NA, 3), 
+             NA, (weights(meta_datp_reml)*0.016), 1, rep(NA, 3),
+             NA, (weights(meta_datah_reml)*0.018), 1, rep(NA, 3),
+             NA, (weights(meta_datga_reml)*0.014), 1, rep(NA, 3), 
+             NA, (weights(meta_datrm_reml)*0.014), 1, NA)
+names(sizes1f) <- NULL
+
+plotf <- forestplot(text1f, 
+             graph.pos = 4,
+             zero = 1,
+             cf,
+             new_page = TRUE,
+             colgap = unit(5, "mm"),
+             hrzl_lines = list("2" = gpar (lwd=1, columns=1:6, col="black")),
+             lineheight=unit(0.7,'cm'),
+             boxsize = sizes1f,
+             is.summary = c(rep(T, 2), rep(F, 2), rep(T, 5), rep(F, 3), rep(T, 5),
+                            rep(F, 2), rep(T, 5), rep(F,2), rep(T, 5), rep(F,2),
+                            rep(T, 5), rep(F, 2), T, T),
+             align = c('l', rep('c', 2), 'l', 'l'),
+             ci.vertices = TRUE,
+             txt_gp = fpTxtGp(label = gpar (cex=0.9), 
+                              ticks = gpar(cex = 0.9, fontface="bold"),
+                              summary = gpar(cex = 0.9),
+                              xlab = gpar(cex=0.9)),
+             xticks = c(0.025, 0.01, 1, 4, 15,  95),
+             xlog=TRUE,
+             clip = c(0.025, 95),
+             grid = c(0.025, 0.1,  4, 15, 95),
+             lwd.xaxis = 1,
+             lwd.ci = 2.2,
+             lwd.zero = 2,
+             graphwidth = unit(10,"cm"),
+             col=fpColors(box="black",line="grey", zero = 'dodgerblue4', axes="grey20", summary="black"))
+plotf
+
+```
+
+</details>
+
