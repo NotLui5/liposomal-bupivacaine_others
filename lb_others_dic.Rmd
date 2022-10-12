@@ -94,9 +94,10 @@ datad_ga
 # datad_f <- dic1[c(13,20,27), ] #NO SE PUEDE ANALIZAR PORQUE SON MISMO ID
 
 # Analgesic rescue medication 12h post + Need aditional narcaotic in PACU
-datad_rm <- dic1[c(33, 36), ] #34, 35
-datad_rm$Author <- c("GorfineKanlıöz, et. al", "Finucan, et. al")
-datad_rm
+# Ya no se analiza porque un estudio es solo Abstract
+# datad_rm <- dic1[c(33, 36), ] #34, 35
+# datad_rm$Author <- c("GorfineKanlıöz, et. al", "Finucan, et. al")
+# datad_rm
 ```
 
 ```{r or_dichotomus outcomes_adverse effects, include=FALSE}
@@ -136,10 +137,10 @@ dat_ga
 # dat_f <- summary(dat_f)
 # dat_f
 
-dat_rm <- escalc(measure="OR", ai=n1, bi=n2,
-              ci=e1, di=e2, data=datad_rm)
-dat_rm <- summary(dat_rm)
-dat_rm
+# dat_rm <- escalc(measure="OR", ai=n1, bi=n2,
+#              ci=e1, di=e2, data=datad_rm)
+# dat_rm <- summary(dat_rm)
+# dat_rm
 ```
 
 ```{r meta_dichotomus outcomes_adverse effects, include=FALSE}
@@ -164,8 +165,8 @@ meta_datga_reml
 # meta_datf_reml <- rma(yi, vi, method="REML", data=dat_f, test='knha')
 # meta_datf_reml
 
-meta_datrm_reml <- rma(yi, vi, method="REML", data=dat_rm, test='knha')
-meta_datrm_reml
+# meta_datrm_reml <- rma(yi, vi, method="REML", data=dat_rm, test='knha')
+# meta_datrm_reml
 ```
 
 ```{r predict_dichotomus outcomes_adverse effects, include=FALSE}
@@ -190,8 +191,8 @@ meta_ga
 #meta_f <- predict(meta_datf_reml, transf = exp, digits = 2)
 #meta_f
 
-meta_rm <- predict(meta_datrm_reml, transf = exp, digits = 2)
-meta_rm
+# meta_rm <- predict(meta_datrm_reml, transf = exp, digits = 2) 
+# meta_rm
 ```
 
 <br>
@@ -247,15 +248,7 @@ col1f <- c("Author", datad_2ae$Author,
             ", p ", (ifelse(meta_datga_reml$QEp < 0.001, 
                             paste("< 0.001"),
                             paste("= ", formatC(meta_datga_reml$QEp, digits=3, format="f")))),
-            "; ", "I^2", " = ", (formatC(meta_datga_reml$I2, digits=1, format="f")), "%)"),NA, NA,
-      "Author", datad_rm$Author, 
-      paste("Overall Odds Ratio for", meta_datrm_reml$k, "studies"),
-      paste("(Tau^2 = ", (formatC(meta_datrm_reml$tau2, digits=2, format="f")), ", df = ", 
-            (meta_datrm_reml$parms),
-            ", p ", (ifelse(meta_datrm_reml$QEp < 0.001, 
-                            paste("< 0.001"),
-                            paste("= ", formatC(meta_datrm_reml$QEp, digits=3, format="f")))),
-            "; ", "I^2", " = ", (formatC(meta_datrm_reml$I2, digits=1, format="f")), "%)"))
+            "; ", "I^2", " = ", (formatC(meta_datga_reml$I2, digits=1, format="f")), "%)"))
 
 col2f <- c("Liposomal Bupivacaine (n/N)",
       paste(dat_2ae$e1,"/", dat_2ae$n1), paste0(sum(dat_2ae$e1), " / ", sum(dat_2ae$n1)), NA, 
@@ -270,10 +263,7 @@ col2f <- c("Liposomal Bupivacaine (n/N)",
       paste(dat_ah$e1,"/", dat_ah$n1), paste0(sum(dat_ah$e1), " / ", sum(dat_ah$n1)), NA,
       NA, NA, 
       "Liposomal Bupivacaine (n/N)",
-      paste(dat_ga$e1,"/", dat_ga$n1), paste0(sum(dat_ga$e1), " / ", sum(dat_ga$n1)), NA,
-      NA, NA, 
-      "Liposomal Bupivacaine (n/N)",
-      paste(dat_rm$e1,"/", dat_rm$n1), paste0(sum(dat_rm$e1), " / ", sum(dat_rm$n1)), NA)
+      paste(dat_ga$e1,"/", dat_ga$n1), paste0(sum(dat_ga$e1), " / ", sum(dat_ga$n1)), NA)
 
 col3f <- c("others (n/N)",
       paste(dat_2ae$e2,"/", dat_2ae$n2), paste0(sum(dat_2ae$e2), " / ", sum(dat_2ae$n2)), NA,
@@ -288,10 +278,7 @@ col3f <- c("others (n/N)",
       paste(dat_ah$e2,"/", dat_ah$n2), paste0(sum(dat_ah$e2), " / ", sum(dat_ah$n2)), NA,
       NA, NA,
       "others (n/N)",
-      paste(dat_ga$e2,"/", dat_ga$n2), paste0(sum(dat_ga$e2), " / ", sum(dat_ga$n2)), NA,
-      NA, NA,
-      "others (n/N)",
-      paste(dat_rm$e2,"/", dat_rm$n2), paste0(sum(dat_rm$e2), " / ", sum(dat_rm$n2)), NA)
+      paste(dat_ga$e2,"/", dat_ga$n2), paste0(sum(dat_ga$e2), " / ", sum(dat_ga$n2)), NA)
 
 
 col4f <- c("Odds Ratio (95% CI)", paste0(formatC(exp(dat_2ae$yi), digits = 2, format = "f"), 
@@ -327,14 +314,7 @@ col4f <- c("Odds Ratio (95% CI)", paste0(formatC(exp(dat_2ae$yi), digits = 2, fo
                                         " - ", formatC(exp(dat_ga$ci.ub), format='f',digits=2), " ) "),
           paste(formatC(meta_ga$pred, format = 'f', digits=2),
             "(", formatC(meta_ga$ci.lb, format = 'f', digits = 2),
-            "-", formatC(meta_ga$ci.ub, format = 'f', digits = 2), ")"), NA,
-          NA, NA,
-          "Odds Ratio (95% CI)", paste0(formatC(exp(dat_rm$yi), digits = 2, format = "f"), 
-                                        " ( ",formatC(exp(dat_rm$ci.lb), format='f', digits=2),
-                                        " - ", formatC(exp(dat_rm$ci.ub), format='f',digits=2), " ) "),
-          paste(formatC(meta_rm$pred, format = 'f', digits=2),
-            "(", formatC(meta_rm$ci.lb, format = 'f', digits = 2),
-            "-", formatC(meta_rm$ci.ub, format = 'f', digits = 2), ")"), NA)
+            "-", formatC(meta_ga$ci.ub, format = 'f', digits = 2), ")"), NA)
 
 col5f <- c("Weight(%)", paste(formatC(weights(meta_dat2ae_reml), format='f', digits = 1),'%'), NA, NA,
            NA, NA,
@@ -344,9 +324,7 @@ col5f <- c("Weight(%)", paste(formatC(weights(meta_dat2ae_reml), format='f', dig
            NA, NA,
            "Weight(%)", paste(formatC(weights(meta_datah_reml), format='f', digits = 1),'%'), NA, NA,
            NA, NA,
-           "Weight(%)", paste(formatC(weights(meta_datga_reml), format='f', digits = 1),'%'), NA, NA,
-           NA, NA,
-           "Weight(%)", paste(formatC(weights(meta_datrm_reml), format='f', digits = 1),'%'), NA, NA)
+           "Weight(%)", paste(formatC(weights(meta_datga_reml), format='f', digits = 1),'%'), NA, NA)
 
 text1f <- cbind(col1f, col2f, col3f, col4f, col5f)
 
@@ -357,18 +335,17 @@ subtitle2 <- c("Nausea and vomites ", rep(NA, 4))
 subtitle3 <- c("Pain", rep(NA,4))
 subtitle4 <- c("Anal bleeding", rep(NA,4))
 subtitle5 <- c("Gastrointestinal AEs", rep(NA,4))
-subtitle6 <- c("Analgesic rescue medication 12h post", rep(NA,4))
 
 text1f <- rbind(text1f[1,], subtitle1, text1f[2:7,], subtitle2, text1f[c(9:15),],
                 subtitle3, text1f[c(17:22),], subtitle4, text1f[c(24:29),],
-                subtitle5, text1f[c(31:36),], subtitle6, text1f[c(38:41),])
+                subtitle5, text1f[c(31:34),])
 rownames(text1f) <- NULL
 
 
 cf <- structure(list(
-          mean = c(rep(NA, 2), exp(dat_2ae$yi), meta_2ae$pred, rep(NA, 4), exp(dat_vn$yi), meta_vn$pred, rep(NA, 4), exp(dat_p$yi), meta_p$pred, rep(NA, 4), exp(dat_ah$yi), meta_ah$pred, rep(NA, 4), exp(dat_ga$yi), meta_ga$pred, rep(NA, 4), exp(dat_rm$yi), meta_rm$pred,NA),
-          lower = c(rep(NA, 2), exp(dat_2ae$ci.lb), meta_2ae$ci.lb, rep(NA, 4), exp(dat_vn$ci.lb), meta_vn$ci.lb, rep(NA, 4), exp(dat_p$ci.lb), meta_p$ci.lb, rep(NA, 4), exp(dat_ah$ci.lb), meta_ah$ci.lb, rep(NA, 4), exp(dat_ga$ci.lb), meta_ga$ci.lb, rep(NA,4), exp(dat_rm$ci.lb), meta_rm$ci.lb, NA),
-          upper = c(rep(NA, 2), exp(dat_2ae$ci.ub), meta_2ae$ci.ub, rep(NA, 4), exp(dat_vn$ci.ub), meta_vn$ci.ub, rep(NA, 4), exp(dat_p$ci.ub), meta_p$ci.ub, rep(NA, 4), exp(dat_ah$ci.ub), meta_ah$ci.ub, rep(NA, 4), exp(dat_ga$ci.ub), meta_ga$ci.ub, rep(NA,4), exp(dat_rm$ci.ub), meta_rm$ci.ub, NA)),
+          mean = c(rep(NA, 2), exp(dat_2ae$yi), meta_2ae$pred, rep(NA, 4), exp(dat_vn$yi), meta_vn$pred, rep(NA, 4), exp(dat_p$yi), meta_p$pred, rep(NA, 4), exp(dat_ah$yi), meta_ah$pred, rep(NA, 4), exp(dat_ga$yi), meta_ga$pred,NA),
+          lower = c(rep(NA, 2), exp(dat_2ae$ci.lb), meta_2ae$ci.lb, rep(NA, 4), exp(dat_vn$ci.lb), meta_vn$ci.lb, rep(NA, 4), exp(dat_p$ci.lb), meta_p$ci.lb, rep(NA, 4), exp(dat_ah$ci.lb), meta_ah$ci.lb, rep(NA, 4), exp(dat_ga$ci.lb), meta_ga$ci.lb, NA),
+          upper = c(rep(NA, 2), exp(dat_2ae$ci.ub), meta_2ae$ci.ub, rep(NA, 4), exp(dat_vn$ci.ub), meta_vn$ci.ub, rep(NA, 4), exp(dat_p$ci.ub), meta_p$ci.ub, rep(NA, 4), exp(dat_ah$ci.ub), meta_ah$ci.ub, rep(NA, 4), exp(dat_ga$ci.ub), meta_ga$ci.ub, NA)),
           .Names = c("mean", "lower", "upper"),
           row.names = c(NA, -1L*nrow(text1f)),
           class = "data.frame")
@@ -377,8 +354,7 @@ sizes1f <- c(NA, NA, (weights(meta_dat2ae_reml)*0.014), 1, rep(NA, 3),
              NA, (weights(meta_datvn_reml)*0.012), 1, rep(NA, 3), 
              NA, (weights(meta_datp_reml)*0.016), 1, rep(NA, 3),
              NA, (weights(meta_datah_reml)*0.018), 1, rep(NA, 3),
-             NA, (weights(meta_datga_reml)*0.014), 1, rep(NA, 3), 
-             NA, (weights(meta_datrm_reml)*0.014), 1, NA)
+             NA, (weights(meta_datga_reml)*0.014), 1, NA)
 names(sizes1f) <- NULL
 
 plotf <- forestplot(text1f, 
@@ -392,7 +368,7 @@ plotf <- forestplot(text1f,
              boxsize = sizes1f,
              is.summary = c(rep(T, 2), rep(F, 2), rep(T, 5), rep(F, 3), rep(T, 5),
                             rep(F, 2), rep(T, 5), rep(F,2), rep(T, 5), rep(F,2),
-                            rep(T, 5), rep(F, 2), T, T),
+                            T, T),
              align = c('l', rep('c', 2), 'l', 'l'),
              ci.vertices = TRUE,
              txt_gp = fpTxtGp(label = gpar (cex=0.9), 
