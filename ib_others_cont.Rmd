@@ -7,122 +7,249 @@ output: html_document
 
 ```{r packages, include=FALSE}
 library(metafor)
-library(openxlsx)
+library(tidyverse)
 library(forestplot)
-library(dplyr)
+library(rmarkdown)
+library(openxlsx)
 ```
 
 ```{r cleaning of Continous outcome, include=FALSE}
-data <- read.xlsx("Data extraction cleaned.xlsx", sheet = 3)
-data2 <- read.xlsx("Data extraction cleaned.xlsx", sheet = 4)
-View(data)
-View(data2)
-# Delete 
-cont1 <- data[-c(1,2,3,4),-c(7,19,20,21)]
-rownames(cont1) <- NULL #Restablecer el numero de filas
-# Extraer continous data from dichotomus data
-cont2 <- data2[c(36,38, 40), -7]
-rownames(cont2) <- NULL
+po <- read.xlsx("Pain outcome.xlsx")
+od <- read.xlsx("Opiod dose mg.xlsx")
+po1 <- po[-c(1,3),-c(6,7,19:22)] # Delete cols that we wont use
+od1 <- od[-2,-c(6,7,19:22)] # Delete cols that we wont use
 
-# Renamecols, RefID = id, Intervention = int, Intervention.Dose = intd, 
+# Renamecols, RefID = Author, Intervention = int, Intervention.Dose = intd, 
 # Comparison.(bupivacaine,.placebo,.other) = comp, Comparison.Dose = cd, 
-# Outcomes = outc, Total.participants.(n) = tpar, Total.Intervention.(n) = tiint, 
-# Total.comparator(n) = tcomp, SD = sd, IQR = iqr, mean.1 = mean1, SD.1 = sd1, 
-# median.1 = median1, IQR.1 = iqr1, p-value = pvalue
-names(cont1) <- c('id', 'int', 'intd', 'comp', 'compd', 'outc', 'tpart', 'tint', 
-                  'tcomp', 'mean', 'sd', 'median', 'iqr', 'mean1', 'sd1', 'median1', 
-                  'iqr1', 'pvalue')
-# Renombrar cont2, RefID = id, Intervention = int, Intervention.Dose = intd, 
-# Comparison = comp, Comparison.Dose = compd, Outcomes:.adverse.effects = outc, 
-# Total.participants.(n) = tpart, Total.Intervention.(n) = tint, Total.comparator(n) = tcomp,
-# n = mean, SD = sd, n.1 = mean1, SD.1 = sd1, Mean.difference = median, 95%.CI.LL = iqr
-# 95%.CI.UL = iqr1, p-value = pvalue
-names(cont2)
-names(cont2) <- c('id', 'int', 'intd', 'comp', 'compd', 'outc', 'tpart', 'tint', 
-                  'tcomp', 'mean', 'sd', 'mean1', 'sd1', 'median', 'iqr','iqr1',
-                  'pvalue')
-
-# Add a col with median value
-cont2 <- cbind(cont2, median1=c(NA, NA, NA))
-
-# Complete total participants with tint + tcomp
-cont1$tpart <- cont1$tint + cont1$tcomp
-cont2$tpart <- cont2$tint + cont2$tcomp
+# Total.participants.(n) = tpart, Total.Intervention.(n) = n, Total.comparator(n) = n, 
+# SD = sd, IQR = iqr, mean.1 = mean1, SD.1 = sd1, median.1 = median1, IQR.1 = iqr1
+names(po1) <- c('Author', 'int', 'intd', 'comp', 'compd', 'tpart', 'n', 'n1', 'mean',
+                'sd', 'median', 'iqr', 'mean1', 'sd1', 'median1', 'iqr1')
+names(od1) <- c('Author', 'int', 'intd', 'comp', 'compd', 'tpart', 'n', 'n1', 'mean', 
+                'sd', 'median', 'iqr', 'mean1', 'sd1', 'median1', 'iqr1')
+rownames(po1) <- NULL #Restablecer el numero de filas
+rownames(od1) <- NULL #Restablecer el numero de filas
 
 # Dejar variables a una sola unidad
-table(cont1$intd) #Buscando fusionar o eliminar filas
-cont1$intd[cont1$intd == '199 mg'] <- '199'
-cont1$intd[cont1$intd == '266 mg'] <- '266'
-cont1$intd[cont1$intd == '300 mg'] <- '300'
-cont1$intd[cont1$intd == '66 mg'] <- '66'
-table(cont1$intd)
+po1$Author[po1$Author == '60'] <- 'Haas, et. al'
+po1$Author[po1$Author == '74'] <- 'Kanlıöz, et. al'
+po1$intd[po1$intd == '266 mg'] <- '199'
+po1$intd[po1$intd == '300 mg'] <- '300'
+po1$comp[po1$comp == 'placebo cream'] <- 'placebo'
 
-table(cont2$intd)
-cont2$intd[cont2$intd == '300 mg'] <- '300'
-table(cont2$intd)
-
-# Fusionar distintos placebo como un unico placebo general
-table(cont1$comp)
-cont1$comp[cont1$comp == 'placebo cream'] <- 'placebo'
-cont1$comp[cont1$comp == 'placebo (0.9% sodium chloride)'] <- 'placebo'
-table(cont1$comp)
-
-rownames(cont1) <- NULL
-cont1[is.na(cont1$tpart), ] #visualizar NA filas
-cont1 <- cont1[-c(46,47,48),] 
-rownames(cont1)
-
-# Checar cada variable 
-table(cont1$mean, useNA = "ifany") #visualizar NA filas
-table(cont1$sd, useNA = "ifany")
-table(cont1$mean1, useNA = "ifany")
-table(cont1$sd1, useNA = "ifany")
-table(cont1$iqr, useNA = "ifany")
-cont1$iqr[cont1$iqr == '12--5760'] <- '12-5760'
-cont1$iqr[cont1$iqr == '6--5760 '] <- '6-5760'
-table(cont1$iqr, useNA = "ifany")
-table(cont1$iqr1, useNA = "ifany")
-cont1$iqr1[cont1$iqr1 == '18- 5760'] <- '18 - 5760'
-table(cont1$iqr1, useNA = "ifany")
+od1$Author[po1$Author == '58'] <- 'Gorfine, et. al'
+od1$Author[po1$Author == '94'] <- 'Shariat, et. al'
+od1$intd[od1$intd == '266 mg'] <- '266'
+od1$comp[od1$comp == 'placebo (0.9% sodium chloride)'] <- 'placebo'
 
 # convertir a variables numericas
-str(cont1)
-cont1$intd <- as.numeric(cont1$intd) 
-# cont1$mean <- as.numeric(cont1$mean) 
-# cont1$sd <- as.numeric(cont1$sd)
-# cont1$iqr <- as.numeric(cont1$iqr)
-# cont1$mean1 <- as.numeric(cont1$mean1) 
-# cont1$sd1 <- as.numeric(cont1$sd1)
-# cont1$iqr1 <- as.numeric(cont1$iqr1)
-# cont1$pvalue <- as.numeric(cont1$pvalue)
+str(po1)
+po1$intd <- as.numeric(po1$intd) 
+po1$mean <- as.numeric(po1$mean) 
+po1$sd <- as.numeric(po1$sd)
+po1$mean1 <- as.numeric(po1$mean1) 
+po1$sd1 <- as.numeric(po1$sd1)
 
-str(cont2)
-# cont2$intd <- as.numeric(cont2$intd)
-# cont2$mean <- as.numeric(cont2$mean) 
-# cont2$sd <- as.numeric(cont2$sd)
-# cont2$mean1 <- as.numeric(cont2$mean1) 
-# cont2$sd1 <- as.numeric(cont2$sd1)
-# cont2$pvalue <- as.numeric(cont2$pvalue)
-# cont2$median1 <- as.numeric(cont2$median1) 
-str(cont2)
+str(od1)
+od1$intd <- as.numeric(od1$intd)
+od1$mean <- as.numeric(od1$mean) 
+od1$sd <- as.numeric(od1$sd)
+od1$mean1 <- as.numeric(od1$mean1) 
+od1$sd1 <- as.numeric(od1$sd1)
 
-# Eliminar si no hay mean & sd, sd & iqr
-cont1[is.na(cont1$mean) & is.na(cont1$median),]
-cont1[is.na(cont1$sd) & is.na(cont1$iqr),]
-cont1 <- cont1[-c(2,5, 7, 8:10, 12:15, 17:25, 29:34, 44,45), ]
-rownames(cont1) <- NULL
-cont1[is.na(cont1$mean1) & is.na(cont1$median1),]
-cont1[is.na(cont1$sd1) & is.na(cont1$iqr1),]
+# Visualizar  si no hay mean & sd, sd & iqr
+po1[is.na(po1$mean) & is.na(po1$median),]
+po1[is.na(po1$sd) & is.na(po1$iqr),]
+po1[is.na(po1$mean1) & is.na(po1$median1),]
+po1[is.na(po1$sd1) & is.na(po1$iqr1),]
+
+od1[is.na(od1$mean) & is.na(od1$median),]
+od1[is.na(od1$sd) & is.na(od1$iqr),]
+od1[is.na(od1$mean1) & is.na(od1$median1),]
+od1[is.na(od1$sd1) & is.na(od1$iqr1),]
 
 ```
 
-```{r analysis outcomes, include=FALSE}
-# Agrupar outcomes -> Time to First Opioid  
-datac_tfp <- cont1[c(4,5,6), ]
-datac_tfp
 
-dat_tfp <- escalc(measure="MD", 
-               m1i=mean_post1, m2i = mean_post2, 
-               sd1i  = sd_post1, sd2i = sd_post2, 
-               n1i = n1, n2i= n2, data=database)
+```{r function, echo=FALSE, message=FALSE, warning=FALSE}
+table_md <- function(analysis, nstudies, int, comp, outcome, col, 
+                     follow=FALSE){
+   ifelse(nstudies>1,
+        (b <- cbind( 
+          c("Author", analysis$pre$author, 
+            paste("Overall Mean Difference for", analysis$ma$k, "studies"),
+            paste("(Tau^2 = ", (formatC(analysis$ma$tau2, digits=2, format="f")), ", df = ", 
+                  (analysis$ma$k - analysis$ma$p),
+                  ", p ", (ifelse(analysis$ma$QEp < 0.001, 
+                                  paste("< 0.001"),
+                                  paste("= ", formatC(analysis$ma$QEp, digits=3, format="f")))),
+                  "; ", "I^2", " = ", (formatC(analysis$ma$I2, digits=1, format="f")), "%)")),
+        c(paste(int), analysis$pre$n1, sum(analysis$pre$n1),NA),
+        c(paste(outcome, '\n', col), analysis$pre$postmean1, NA, NA),
+        c(paste(comp), analysis$pre$n2,sum(analysis$pre$n2), NA),
+        c(paste(outcome, '\n', col), analysis$pre$postmean2, NA, NA),
+        c("Mean Difference (95% CI)", analysis$pre$md, 
+            paste(formatC(analysis$ma$b, format='f', digits =1), 
+                  " (",formatC(analysis$ma$ci.lb, format='f', digits=1),
+                  ",", formatC(analysis$ma$ci.ub, format='f', digits=1), ")"), NA),
+        c("Weight (%)", analysis$pre$w, NA, NA))),
+        (b <- cbind( 
+        c("Author", analysis$pre$author),
+        c(paste(int), analysis$pre$n1),
+        c(paste(outcome,'\n', col), analysis$pre$postmean1),
+        c(paste(comp), analysis$pre$n2),
+        c(paste(outcome, '\n',col), analysis$pre$postmean2),
+        c("Mean Difference (95% CI)", analysis$pre$md))))
+
+  ifelse(follow==TRUE, 
+          b <- cbind(b, c(paste('Follow-up'), analysis$pre$followup, NA)), NA)
+  ifelse(follow==TRUE,
+          b <- b[,c(1,ncol(b),2:(ncol(b)-1))], NA)
+  
+  
+  b <- as_tibble(b) 
+  b <- b %>% add_row(.before = 2)
+  b <- b %>% add_row(.before = 2)
+  b <- b %>% add_row(.after = nrow(b))
+  
+  ifelse(nstudies>1, b <- b %>% add_row(.before = nrow(b)-2), NA)
+
+  
+  ifelse(nstudies > 1,
+        (c <- structure(list(
+          mean = c(rep(NA, 3), analysis$pre$yi, NA, analysis$ma$b,NA, NA),
+          lower = c(rep(NA, 3), analysis$pre$ci.lb, NA, analysis$ma$ci.lb, NA, NA),
+          upper = c(rep(NA, 3), analysis$pre$ci.ub, NA, analysis$ma$ci.ub, NA, NA)),
+          .Names = c("mean", "lower", "upper"),
+          row.names = c(NA, -1L*nrow(b)),
+          class = "data.frame")),
+        (c <- structure(list(
+          mean = c(rep(NA, 3), analysis$pre$yi, NA),
+          lower = c(rep(NA, 3), analysis$pre$ci.lb, NA),
+          upper = c(rep(NA, 3), analysis$pre$ci.ub, NA)),
+          .Names = c("mean", "lower", "upper"),
+          row.names = c(NA, -1L*nrow(b)),
+          class = "data.frame")))
+
+  c <- as_tibble(c)
+  
+  list(b = b, c = c)
+} 
+
+```
+
+```{r analysis Pain outcome, echo=FALSE, message=FALSE, warning=FALSE}
+db_po <- po1
+db_po <- escalc(measure="MD", 
+             m1i=mean, m2i = mean1, 
+             sd1i  = sd, sd2i = sd1, 
+             n1i = n, n2i= n1, data=po1)
+
+db_po <- db_po[order(db_po$yi),]
+db_po <- summary(db_po)
+  
+db_po$md <- paste(formatC(db_po$yi, format='f', digits =1)," ",
+               "(",formatC(db_po$ci.lb, format='f', digits =1),
+               ",",formatC(db_po$ci.ub, format='f', digits=1),")") 
+db_po$postmean1 <- paste(formatC(db_po$mean, format='f', digits=1),'(', formatC(db_po$sd, format='f', digits=1),')')
+db_po$postmean2 <- paste(formatC(db_po$mean1, format='f', digits=1),'(', formatC(db_po$sd1, format='f', digits=1),')')
+  
+ma_po <- rma(yi, vi, measure='MD', data=db_po, method='REML')
+  
+db_po$w <- paste(formatC(weights(ma_po), format='f', digits = 1),'%')
+db_po$weights <- weights(ma_po)
+  
+list(pre = db_po, ma = ma_po)
+
+# Primera function que no pude entender
+tbl_md_po <- table_md(analysis = db_po, nstudies = 2, 
+                    int = "Liposomal bupivacaine (n)", comp = "Others (n)",
+                    outcome = 'Pain (NRS)', col = 'Mean (SD)', 
+                  follow = FALSE)
+
+
+db_od <- od1
+db_od <- escalc(measure="MD", 
+             m1i=mean, m2i = mean1, 
+             sd1i  = sd, sd2i = sd1, 
+             n1i = n, n2i= n1, data=od1)
+
+db_od <- db_od[order(db_od$yi),]
+db_od <- summary(db_od)
+  
+db_od$md <- paste(formatC(db_od$yi, format='f', digits =1)," ",
+               "(",formatC(db_od$ci.lb, format='f', digits =1),
+               ",",formatC(db_od$ci.ub, format='f', digits=1),")") 
+db_od$postmean1 <- paste(formatC(db_od$mean, format='f', digits=1),'(', formatC(db_od$sd, format='f', digits=1),')')
+db_od$postmean2 <- paste(formatC(db_od$mean1, format='f', digits=1),'(', formatC(db_od$sd1, format='f', digits=1),')')
+  
+ma_od <- rma(yi, vi, measure='MD', data=db_od, method='REML')
+  
+db_od$w <- paste(formatC(weights(ma_od), format='f', digits = 1),'%')
+db_od$weights <- weights(ma_od)
+  
+list(pre = db_od, ma = ma_od)
+
+# Primera function que no pude entender
+tbl_md_od <- table_md(analysis = db_od, nstudies = 2, 
+                    int = "Liposomal bupivacaine (n)", comp = "Placebo (n)",
+                    outcome = 'Dose of opiod rescue medication (mg)', col = 'Mean (SD)', 
+                  follow = FALSE)
+```
+
+```{r cont_graphs, echo=FALSE, fig.height=10, fig.width=16, message=FALSE, warning=FALSE}
+title <- c('', paste0('Liposomal bupivacaine'), "mean (SD)",
+            paste0('Others'), "mean (SD)",
+            paste0('Mean Difference (MD) 95%CI'), 
+            paste0('Weights'))
+
+sub_cont1 <- c('Pain (NRS)', rep(NA, 6))
+sub_cont2 <- c('Dose of opiod rescue medication (mg)', rep(NA, 6))
+
+
+subtotal2 <- rbind(title, NA,
+                   sub_cont1, tbl_md_po$b[-c(1:3, nrow(tbl_md_po$b)-3),], NA,
+                   sub_cont2, tbl_md_od$b[-c(1:3, nrow(tbl_md_od$b)-3),])
+
+subtotal2_summary <- c(T, F, 
+                           T, rep(F, nrow(tbl_md_po$b[-c(1:3, nrow(tbl_md_po$b)-3),])-3),T,T,F,F,
+                           T, rep(F, nrow(tbl_md_od$b[-c(1:3, nrow(tbl_md_od$b)-3),])-3), T, T,F)
+
+sizes_cont <- c(rep(NA,3), 0.006*(db_po$pre$weights),1,
+                rep(NA, 4), 0.03*(db_od$pre$weights),1,
+                rep(NA, 2))
+
+subtotal2n <- rbind(NA,
+                    NA, tbl_md_po$c[-c(1:3, nrow(tbl_md_po$c)-3),], NA,
+                   NA, tbl_md_od$c[-c(1:3, nrow(tbl_md_od$c)-3),])
+
+
+
+plot<- forestplot(subtotal2,
+             graph.pos = 6,
+             zero = 0,
+             subtotal2n,
+             new_page = TRUE,
+             colgap = unit(5, "mm"),
+             hrzl_lines = list("2" = gpar (lwd=1, columns=1:8, col="black")),
+             lineheight=unit(0.7,'cm'),
+             boxsize = sizes_cont,
+             line.margin = 2,
+             is.summary = subtotal2_summary,
+             align = c('l', rep('c', 4), 'l', 'l'),
+             ci.vertices = TRUE,
+             txt_gp = fpTxtGp(label =gpar (cex=0.9), 
+                              ticks = gpar(cex = 0.9, fontface="bold"),
+                              summary = gpar(cex = 0.9),
+                              xlab = gpar(cex=0.9)),
+             xticks = c(-20,0,50),
+             xlog=FALSE,
+             clip = c(-20,50),
+             grid = c(-20,0,50),
+             lwd.xaxis = 1,
+             lwd.ci = 2.2,
+             lwd.zero = 2,
+             graphwidth = unit(8,"cm"),
+             col=fpColors(box="black",line="grey", zero = 'dodgerblue4', axes="grey20", summary="black"))
+  
 ```
