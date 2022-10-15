@@ -72,6 +72,23 @@ od1[is.na(od1$sd1) & is.na(od1$iqr1),]
 
 
 ```{r function, echo=FALSE, message=FALSE, warning=FALSE}
+  db1 <- db1[order(db1$yi),]
+  db1 <- summary(db1)
+  
+  db1$md <- paste(formatC(db1$yi, format='f', digits =1)," ",
+                 "(",formatC(db1$ci.lb, format='f', digits =1),
+                 ",",formatC(db1$ci.ub, format='f', digits=1),")") 
+  db1$postmean1 <- paste(formatC(db1$mean_post1, format='f', digits=1),'(', formatC(db1$sd_post1, format='f', digits=1),')')
+  db1$postmean2 <- paste(formatC(db1$mean_post2, format='f', digits=1),'(', formatC(db1$sd_post2, format='f', digits=1),')')
+  
+  ma <- rma(yi, vi, measure='MD', data=db, method='REML')
+  
+  db$w <- paste(formatC(weights(ma), format='f', digits = 1),'%')
+  db$weights <- weights(ma)
+  
+  list(pre = db, ma = ma)
+
+
 table_md <- function(analysis, nstudies, int, comp, outcome, col, 
                      follow=FALSE){
    ifelse(nstudies>1,
@@ -144,7 +161,8 @@ db_po <- escalc(measure="MD",
              m1i=mean, m2i = mean1, 
              sd1i  = sd, sd2i = sd1, 
              n1i = n, n2i= n1, data=po1)
-
+db_po$vi <- ifelse(is.na(db_po$vi), 
+               ((db_po$mdul_post-db1$mdll_post)/((2*abs(qt(0.05/2, db_po$total-1)))^2)), db_po$vi)
 db_po <- db_po[order(db_po$yi),]
 db_po <- summary(db_po)
   
@@ -155,14 +173,15 @@ db_po$postmean1 <- paste(formatC(db_po$mean, format='f', digits=1),'(', formatC(
 db_po$postmean2 <- paste(formatC(db_po$mean1, format='f', digits=1),'(', formatC(db_po$sd1, format='f', digits=1),')')
   
 ma_po <- rma(yi, vi, measure='MD', data=db_po, method='REML')
-  
+finpo <- predict(ma_po)
+
 db_po$w <- paste(formatC(weights(ma_po), format='f', digits = 1),'%')
 db_po$weights <- weights(ma_po)
   
-list(pre = db_po, ma = ma_po)
+pof <- list(pre = db_po, ma = ma_po)
 
 # Primera function que no pude entender
-tbl_md_po <- table_md(analysis = db_po, nstudies = 2, 
+tbl_md_po <- table_md(analysis = pof, nstudies = 2, 
                     int = "Liposomal bupivacaine (n)", comp = "Others (n)",
                     outcome = 'Pain (NRS)', col = 'Mean (SD)', 
                   follow = FALSE)
@@ -184,14 +203,15 @@ db_od$postmean1 <- paste(formatC(db_od$mean, format='f', digits=1),'(', formatC(
 db_od$postmean2 <- paste(formatC(db_od$mean1, format='f', digits=1),'(', formatC(db_od$sd1, format='f', digits=1),')')
   
 ma_od <- rma(yi, vi, measure='MD', data=db_od, method='REML')
-  
+finod <- predict(ma_od)
+
 db_od$w <- paste(formatC(weights(ma_od), format='f', digits = 1),'%')
 db_od$weights <- weights(ma_od)
   
-list(pre = db_od, ma = ma_od)
+odf <- list(pre = db_od, ma = ma_od)
 
 # Primera function que no pude entender
-tbl_md_od <- table_md(analysis = db_od, nstudies = 2, 
+tbl_md_od <- table_md(analysis = odf, nstudies = 2, 
                     int = "Liposomal bupivacaine (n)", comp = "Placebo (n)",
                     outcome = 'Dose of opiod rescue medication (mg)', col = 'Mean (SD)', 
                   follow = FALSE)
@@ -219,11 +239,9 @@ sizes_cont <- c(rep(NA,3), 0.006*(db_po$pre$weights),1,
                 rep(NA, 4), 0.03*(db_od$pre$weights),1,
                 rep(NA, 2))
 
-subtotal2n <- rbind(NA,
+subtotal2n <- rbind(NA,NA,
                     NA, tbl_md_po$c[-c(1:3, nrow(tbl_md_po$c)-3),], NA,
                    NA, tbl_md_od$c[-c(1:3, nrow(tbl_md_od$c)-3),])
-
-
 
 plot<- forestplot(subtotal2,
              graph.pos = 6,
