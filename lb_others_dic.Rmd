@@ -15,7 +15,7 @@ library(openxlsx)
 library(forestplot)
 library(dplyr)
 
-knitr::opts_chunk$set(fig.path = "8 Output Figures/", dev='svg') # dev = 'png'
+knitr::opts_chunk$set(fig.path = "Dic Output Figures/", dev='svg') # dev = 'png'
 
 ```
 
@@ -196,12 +196,12 @@ meta_ga
 ```
 
 <br>
-<h2>Individual Forestplots</h2>
+<h2>Individual Forestplots Dichotomus Data</h2>
 
 
 <details>
 
-<summary><b>Figure 1 -</b> Adverse effects of liposomal bupivacaine vs others</summary>
+<summary><b>Figure B -</b> Adverse effects of liposomal bupivacaine vs others</summary>
 <br>
 
 ```{r overall_graph_REML, echo=FALSE, fig.height = 11.6, fig.width = 13.5}

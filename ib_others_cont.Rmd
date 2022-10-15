@@ -3,7 +3,7 @@ title: "Meta-analysis of Liposomal bupivacaine vs others"
 knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_file = paste0(dirname(inputFile),'/README.md')) })
 output: github_document
 ---
-<i>Analysis and visualization developed by [Luis A. Figueroa](https://twitter.com/LuisFig1706) and [Oscar J. Ponce](https://twitter.com/PonceOJ)</i>
+<i> Analysis and visualization developed by [Luis A. Figueroa](https://twitter.com/LuisFig1706) and [Oscar J. Ponce](https://twitter.com/PonceOJ)</i>
 
 The purpose of this site is to make our meta-analysis as transparent as possible. All information or documents used, from the protocol to the final publication, will be available here. If further information is needed, please do not hesitate to contact us.
 
@@ -14,7 +14,7 @@ library(forestplot)
 library(rmarkdown)
 library(openxlsx)
 
-knitr::opts_chunk$set(fig.path = "8 Output Figures/", dev='svg') # dev = 'png'
+knitr::opts_chunk$set(fig.path = "Cont Output Figures/", dev='svg') # dev = 'png'
 ```
 
 ```{r cleaning of Continous outcome, include=FALSE}
@@ -205,6 +205,7 @@ tbl_md_od <- table_md(analysis = odf, nstudies = 2,
                   follow = FALSE)
 ```
 
+<h2>Individual Forestplots Continuous Data</h2>
 
 <details>
 
@@ -212,7 +213,7 @@ tbl_md_od <- table_md(analysis = odf, nstudies = 2,
 bupivacaine vs others </summary>
 <br>
 
-```{r cont_graphs, echo=FALSE, fig.height = 6.5, fig.width = 13}
+```{r cont_graphs, echo=FALSE, fig.height = 5, fig.width = 15}
 title <- c('', paste0('Liposomal bupivacaine'), "mean (SD)",
             paste0('Others'), "mean (SD)",
             paste0('Mean Difference (MD) 95%CI'), 
@@ -268,6 +269,7 @@ plot<- forestplot(subtotal2,
              lwd.zero = 2,
              graphwidth = unit(8,"cm"),
              col=fpColors(box="black",line="grey", zero = 'dodgerblue4', axes="grey20", summary="black"))
-  
+
+plot
 ```
 </details>
