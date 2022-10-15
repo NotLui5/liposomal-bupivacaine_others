@@ -72,22 +72,6 @@ od1[is.na(od1$sd1) & is.na(od1$iqr1),]
 
 
 ```{r function, echo=FALSE, message=FALSE, warning=FALSE}
-  db1 <- db1[order(db1$yi),]
-  db1 <- summary(db1)
-  
-  db1$md <- paste(formatC(db1$yi, format='f', digits =1)," ",
-                 "(",formatC(db1$ci.lb, format='f', digits =1),
-                 ",",formatC(db1$ci.ub, format='f', digits=1),")") 
-  db1$postmean1 <- paste(formatC(db1$mean_post1, format='f', digits=1),'(', formatC(db1$sd_post1, format='f', digits=1),')')
-  db1$postmean2 <- paste(formatC(db1$mean_post2, format='f', digits=1),'(', formatC(db1$sd_post2, format='f', digits=1),')')
-  
-  ma <- rma(yi, vi, measure='MD', data=db, method='REML')
-  
-  db$w <- paste(formatC(weights(ma), format='f', digits = 1),'%')
-  db$weights <- weights(ma)
-  
-  list(pre = db, ma = ma)
-
 
 table_md <- function(analysis, nstudies, int, comp, outcome, col, 
                      follow=FALSE){
@@ -157,7 +141,7 @@ table_md <- function(analysis, nstudies, int, comp, outcome, col,
 
 ```{r analysis Pain outcome, echo=FALSE, message=FALSE, warning=FALSE}
 db_po <- po1
-db_po <- escalc(measure="MD", 
+db_po <- escalc(measure="MD",
              m1i=mean, m2i = mean1, 
              sd1i  = sd, sd2i = sd1, 
              n1i = n, n2i= n1, data=po1)
@@ -172,7 +156,7 @@ db_po$md <- paste(formatC(db_po$yi, format='f', digits =1)," ",
 db_po$postmean1 <- paste(formatC(db_po$mean, format='f', digits=1),'(', formatC(db_po$sd, format='f', digits=1),')')
 db_po$postmean2 <- paste(formatC(db_po$mean1, format='f', digits=1),'(', formatC(db_po$sd1, format='f', digits=1),')')
   
-ma_po <- rma(yi, vi, measure='MD', data=db_po, method='REML')
+ma_po <- rma(yi, vi, measure='MD', data=db_po, method='REML', test = 'knha')
 finpo <- predict(ma_po)
 
 db_po$w <- paste(formatC(weights(ma_po), format='f', digits = 1),'%')
@@ -231,6 +215,9 @@ subtotal2 <- rbind(title, NA,
                    sub_cont1, tbl_md_po$b[-c(1:3, nrow(tbl_md_po$b)-3),], NA,
                    sub_cont2, tbl_md_od$b[-c(1:3, nrow(tbl_md_od$b)-3),])
 
+subtotal2 <- as.matrix(subtotal2)
+
+
 subtotal2_summary <- c(T, F, 
                            T, rep(F, nrow(tbl_md_po$b[-c(1:3, nrow(tbl_md_po$b)-3),])-3),T,T,F,F,
                            T, rep(F, nrow(tbl_md_od$b[-c(1:3, nrow(tbl_md_od$b)-3),])-3), T, T,F)
@@ -241,7 +228,8 @@ sizes_cont <- c(rep(NA,3), 0.006*(db_po$pre$weights),1,
 
 subtotal2n <- rbind(NA,NA,
                     NA, tbl_md_po$c[-c(1:3, nrow(tbl_md_po$c)-3),], NA,
-                   NA, tbl_md_od$c[-c(1:3, nrow(tbl_md_od$c)-3),])
+                    NA, tbl_md_od$c[-c(1:3, nrow(tbl_md_od$c)-3),])
+
 
 plot<- forestplot(subtotal2,
              graph.pos = 6,
@@ -260,10 +248,10 @@ plot<- forestplot(subtotal2,
                               ticks = gpar(cex = 0.9, fontface="bold"),
                               summary = gpar(cex = 0.9),
                               xlab = gpar(cex=0.9)),
-             xticks = c(-20,0,50),
+             xticks = c(-15,0,5),
              xlog=FALSE,
-             clip = c(-20,50),
-             grid = c(-20,0,50),
+             clip = c(-15,5),
+             grid = c(-15,0,5),
              lwd.xaxis = 1,
              lwd.ci = 2.2,
              lwd.zero = 2,
