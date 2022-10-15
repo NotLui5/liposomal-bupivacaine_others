@@ -1,9 +1,11 @@
 ---
-title: "ib_others_cont"
-author: "Luis Armando Figueroa"
-date: '2022-10-04'
-output: html_document
+title: "Meta-analysis of Liposomal bupivacaine vs others"
+knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_file = paste0(dirname(inputFile),'/README.md')) })
+output: github_document
 ---
+<i>Analysis and visualization developed by [Luis A. Figueroa](https://twitter.com/LuisFig1706) and [Oscar J. Ponce](https://twitter.com/PonceOJ)</i>
+
+The purpose of this site is to make our meta-analysis as transparent as possible. All information or documents used, from the protocol to the final publication, will be available here. If further information is needed, please do not hesitate to contact us.
 
 ```{r packages, include=FALSE}
 library(metafor)
@@ -11,6 +13,8 @@ library(tidyverse)
 library(forestplot)
 library(rmarkdown)
 library(openxlsx)
+
+knitr::opts_chunk$set(fig.path = "8 Output Figures/", dev='svg') # dev = 'png'
 ```
 
 ```{r cleaning of Continous outcome, include=FALSE}
@@ -37,8 +41,8 @@ po1$intd[po1$intd == '266 mg'] <- '199'
 po1$intd[po1$intd == '300 mg'] <- '300'
 po1$comp[po1$comp == 'placebo cream'] <- 'placebo'
 
-od1$Author[po1$Author == '58'] <- 'Gorfine, et. al'
-od1$Author[po1$Author == '94'] <- 'Shariat, et. al'
+od1$Author[od1$Author == '58'] <- 'Gorfine, et. al'
+od1$Author[od1$Author == '94'] <- 'Shariat, et. al'
 od1$intd[od1$intd == '266 mg'] <- '266'
 od1$comp[od1$comp == 'placebo (0.9% sodium chloride)'] <- 'placebo'
 
@@ -75,9 +79,9 @@ od1[is.na(od1$sd1) & is.na(od1$iqr1),]
 
 table_md <- function(analysis, nstudies, int, comp, outcome, col, 
                      follow=FALSE){
-   ifelse(nstudies>1,
+  ifelse(nstudies>1,
         (b <- cbind( 
-          c("Author", analysis$pre$author, 
+          c("Author", analysis$pre$Author, 
             paste("Overall Mean Difference for", analysis$ma$k, "studies"),
             paste("(Tau^2 = ", (formatC(analysis$ma$tau2, digits=2, format="f")), ", df = ", 
                   (analysis$ma$k - analysis$ma$p),
@@ -85,9 +89,9 @@ table_md <- function(analysis, nstudies, int, comp, outcome, col,
                                   paste("< 0.001"),
                                   paste("= ", formatC(analysis$ma$QEp, digits=3, format="f")))),
                   "; ", "I^2", " = ", (formatC(analysis$ma$I2, digits=1, format="f")), "%)")),
-        c(paste(int), analysis$pre$n1, sum(analysis$pre$n1),NA),
+        c(paste(int), analysis$pre$n, sum(analysis$pre$n),NA),
         c(paste(outcome, '\n', col), analysis$pre$postmean1, NA, NA),
-        c(paste(comp), analysis$pre$n2,sum(analysis$pre$n2), NA),
+        c(paste(comp), analysis$pre$n1,sum(analysis$pre$n1), NA),
         c(paste(outcome, '\n', col), analysis$pre$postmean2, NA, NA),
         c("Mean Difference (95% CI)", analysis$pre$md, 
             paste(formatC(analysis$ma$b, format='f', digits =1), 
@@ -95,11 +99,11 @@ table_md <- function(analysis, nstudies, int, comp, outcome, col,
                   ",", formatC(analysis$ma$ci.ub, format='f', digits=1), ")"), NA),
         c("Weight (%)", analysis$pre$w, NA, NA))),
         (b <- cbind( 
-        c("Author", analysis$pre$author),
-        c(paste(int), analysis$pre$n1),
-        c(paste(outcome,'\n', col), analysis$pre$postmean1),
-        c(paste(comp), analysis$pre$n2),
-        c(paste(outcome, '\n',col), analysis$pre$postmean2),
+        c("Author", analysis$pre$Author),
+        c(paste(int), analysis$pre$n),
+        c(paste(outcome,'\n', col), analysis$pre$postmean),
+        c(paste(comp), analysis$pre$n1),
+        c(paste(outcome, '\n',col), analysis$pre$postmean1),
         c("Mean Difference (95% CI)", analysis$pre$md))))
 
   ifelse(follow==TRUE, 
@@ -201,7 +205,14 @@ tbl_md_od <- table_md(analysis = odf, nstudies = 2,
                   follow = FALSE)
 ```
 
-```{r cont_graphs, echo=FALSE, fig.height=10, fig.width=16, message=FALSE, warning=FALSE}
+
+<details>
+
+<summary><b>Figure A -</b> Pain & Dose of opiod rescue medication with liposomal
+bupivacaine vs others </summary>
+<br>
+
+```{r cont_graphs, echo=FALSE, fig.height = 6.5, fig.width = 13}
 title <- c('', paste0('Liposomal bupivacaine'), "mean (SD)",
             paste0('Others'), "mean (SD)",
             paste0('Mean Difference (MD) 95%CI'), 
@@ -222,8 +233,8 @@ subtotal2_summary <- c(T, F,
                            T, rep(F, nrow(tbl_md_po$b[-c(1:3, nrow(tbl_md_po$b)-3),])-3),T,T,F,F,
                            T, rep(F, nrow(tbl_md_od$b[-c(1:3, nrow(tbl_md_od$b)-3),])-3), T, T,F)
 
-sizes_cont <- c(rep(NA,3), 0.006*(db_po$pre$weights),1,
-                rep(NA, 4), 0.03*(db_od$pre$weights),1,
+sizes_cont <- c(rep(NA,3), 0.005*(pof$pre$weights),1,
+                rep(NA, 4), 0.005*(odf$pre$weights),1,
                 rep(NA, 2))
 
 subtotal2n <- rbind(NA,NA,
@@ -248,10 +259,10 @@ plot<- forestplot(subtotal2,
                               ticks = gpar(cex = 0.9, fontface="bold"),
                               summary = gpar(cex = 0.9),
                               xlab = gpar(cex=0.9)),
-             xticks = c(-15,0,5),
+             xticks = c(-15,0,12),
              xlog=FALSE,
-             clip = c(-15,5),
-             grid = c(-15,0,5),
+             clip = c(-15,12),
+             grid = c(-15,0,12),
              lwd.xaxis = 1,
              lwd.ci = 2.2,
              lwd.zero = 2,
@@ -259,3 +270,4 @@ plot<- forestplot(subtotal2,
              col=fpColors(box="black",line="grey", zero = 'dodgerblue4', axes="grey20", summary="black"))
   
 ```
+</details>
