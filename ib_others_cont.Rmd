@@ -176,7 +176,7 @@ tbl_md_po <- table_md(analysis = pof, nstudies = 2,
 
 
 db_od <- od1
-db_od <- escalc(measure="MD", 
+db_od <- escalc(measure="SMD", 
              m1i=mean, m2i = mean1, 
              sd1i  = sd, sd2i = sd1, 
              n1i = n, n2i= n1, data=od1)
@@ -190,7 +190,7 @@ db_od$md <- paste(formatC(db_od$yi, format='f', digits =1)," ",
 db_od$postmean1 <- paste(formatC(db_od$mean, format='f', digits=1),'(', formatC(db_od$sd, format='f', digits=1),')')
 db_od$postmean2 <- paste(formatC(db_od$mean1, format='f', digits=1),'(', formatC(db_od$sd1, format='f', digits=1),')')
   
-ma_od <- rma(yi, vi, measure='MD', data=db_od, method='REML')
+ma_od <- rma(yi, vi, measure='SMD', data=db_od, method='REML')
 finod <- predict(ma_od)
 
 db_od$w <- paste(formatC(weights(ma_od), format='f', digits = 1),'%')
@@ -209,51 +209,41 @@ tbl_md_od <- table_md(analysis = odf, nstudies = 2,
 
 <details>
 
-<summary><b>Figure A -</b> Pain & Dose of opiod rescue medication with liposomal
-bupivacaine vs others </summary>
+<summary><b>Figure A -</b> Pain Outcome with liposomal bupivacaine vs others </summary>
 <br>
 
 ```{r cont_graphs, echo=FALSE, fig.height = 5, fig.width = 15}
-title <- c('', paste0('Liposomal bupivacaine'), "mean (SD)",
+title1 <- c('', paste0('Liposomal bupivacaine (n)'), "mean (SD)",
             paste0('Others'), "mean (SD)",
             paste0('Mean Difference (MD) 95%CI'), 
             paste0('Weights'))
 
 sub_cont1 <- c('Pain (NRS)', rep(NA, 6))
-sub_cont2 <- c('Dose of opiod rescue medication (mg)', rep(NA, 6))
 
+subtotal1 <- rbind(title1, NA,
+                   sub_cont1, tbl_md_po$b[-c(1:3, nrow(tbl_md_po$b)-3),])
+subtotal1 <- as.matrix(subtotal1)
 
-subtotal2 <- rbind(title, NA,
-                   sub_cont1, tbl_md_po$b[-c(1:3, nrow(tbl_md_po$b)-3),], NA,
-                   sub_cont2, tbl_md_od$b[-c(1:3, nrow(tbl_md_od$b)-3),])
+subtotal1_summary <- c(T, F, 
+                       T, rep(F, nrow(tbl_md_po$b[-c(1:3, nrow(tbl_md_po$b)-3),])-3),T,T,F)
 
-subtotal2 <- as.matrix(subtotal2)
-
-
-subtotal2_summary <- c(T, F, 
-                           T, rep(F, nrow(tbl_md_po$b[-c(1:3, nrow(tbl_md_po$b)-3),])-3),T,T,F,F,
-                           T, rep(F, nrow(tbl_md_od$b[-c(1:3, nrow(tbl_md_od$b)-3),])-3), T, T,F)
-
-sizes_cont <- c(rep(NA,3), 0.005*(pof$pre$weights),1,
-                rep(NA, 4), 0.005*(odf$pre$weights),1,
+sizes_cont1 <- c(rep(NA,3), 0.005*(pof$pre$weights),1,
                 rep(NA, 2))
 
-subtotal2n <- rbind(NA,NA,
-                    NA, tbl_md_po$c[-c(1:3, nrow(tbl_md_po$c)-3),], NA,
-                    NA, tbl_md_od$c[-c(1:3, nrow(tbl_md_od$c)-3),])
+subtotal1n <- rbind(NA,NA,
+                    NA, tbl_md_po$c[-c(1:3, nrow(tbl_md_po$c)-3),])
 
-
-plot<- forestplot(subtotal2,
+plot1 <- forestplot(subtotal1,
              graph.pos = 6,
              zero = 0,
-             subtotal2n,
+             subtotal1n,
              new_page = TRUE,
              colgap = unit(5, "mm"),
              hrzl_lines = list("2" = gpar (lwd=1, columns=1:8, col="black")),
              lineheight=unit(0.7,'cm'),
-             boxsize = sizes_cont,
+             boxsize = sizes_cont1,
              line.margin = 2,
-             is.summary = subtotal2_summary,
+             is.summary = subtotal1_summary,
              align = c('l', rep('c', 4), 'l', 'l'),
              ci.vertices = TRUE,
              txt_gp = fpTxtGp(label =gpar (cex=0.9), 
@@ -270,6 +260,63 @@ plot<- forestplot(subtotal2,
              graphwidth = unit(8,"cm"),
              col=fpColors(box="black",line="grey", zero = 'dodgerblue4', axes="grey20", summary="black"))
 
-plot
+plot1
+```
+</details>
+
+<details>
+
+<summary><b>Figure A -</b> Dose of rescue medication Outcome with liposomal bupivacaine vs placebo </summary>
+<br>
+
+```{r cont_graphs, echo=FALSE, fig.height = 5, fig.width = 15}
+title2 <- c('', paste0('Liposomal bupivacaine (n)'), "mean (SD)",
+            paste0('Placebo'), "mean (SD)",
+            paste0('Mean Difference (SMD) 95%CI'), 
+            paste0('Weights'))
+
+sub_cont2 <- c('Dose of opiod rescue medication (mg)', rep(NA, 6))
+
+subtotal2 <- rbind(title2, NA,
+                   sub_cont2, tbl_md_od$b[-c(1:3, nrow(tbl_md_od$b)-3),])
+subtotal2 <- as.matrix(subtotal2)
+
+subtotal2_summary <- c(T, F, 
+                       T, rep(F, nrow(tbl_md_od$b[-c(1:3, nrow(tbl_md_od$b)-3),])-3), T, T,F)
+
+sizes_cont2 <- c(rep(NA,3), 0.005*(odf$pre$weights),1,
+                rep(NA, 2))
+
+subtotal2n <- rbind(NA,NA,
+                    NA, tbl_md_od$c[-c(1:3, nrow(tbl_md_od$c)-3),])
+
+plot2 <- forestplot(subtotal2,
+             graph.pos = 6,
+             zero = 0,
+             subtotal2n,
+             new_page = TRUE,
+             colgap = unit(5, "mm"),
+             hrzl_lines = list("2" = gpar (lwd=1, columns=1:8, col="black")),
+             lineheight=unit(0.7,'cm'),
+             boxsize = sizes_cont2,
+             line.margin = 2,
+             is.summary = subtotal2_summary,
+             align = c('l', rep('c', 4), 'l', 'l'),
+             ci.vertices = TRUE,
+             txt_gp = fpTxtGp(label =gpar (cex=0.9), 
+                              ticks = gpar(cex = 0.9, fontface="bold"),
+                              summary = gpar(cex = 0.9),
+                              xlab = gpar(cex=0.9)),
+             xticks = c(-3,0,2),
+             xlog=FALSE,
+             clip = c(-3,2),
+             grid = c(-3,0,2),
+             lwd.xaxis = 1,
+             lwd.ci = 2.2,
+             lwd.zero = 2,
+             graphwidth = unit(8,"cm"),
+             col=fpColors(box="black",line="grey", zero = 'dodgerblue4', axes="grey20", summary="black"))
+
+plot2
 ```
 </details>
