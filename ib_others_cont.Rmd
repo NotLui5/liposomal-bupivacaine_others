@@ -212,7 +212,7 @@ tbl_md_od <- table_md(analysis = odf, nstudies = 2,
 <summary><b>Figure A -</b> Pain Outcome with liposomal bupivacaine vs others </summary>
 <br>
 
-```{r cont_graphs, echo=FALSE, fig.height = 5, fig.width = 15}
+```{r cont_graphs po, echo=FALSE, fig.height = 2.2, fig.width = 15}
 title1 <- c('', paste0('Liposomal bupivacaine (n)'), "mean (SD)",
             paste0('Others'), "mean (SD)",
             paste0('Mean Difference (MD) 95%CI'), 
@@ -262,14 +262,19 @@ plot1 <- forestplot(subtotal1,
 
 plot1
 ```
+
+
 </details>
+
+
 
 <details>
 
 <summary><b>Figure A -</b> Dose of rescue medication Outcome with liposomal bupivacaine vs placebo </summary>
 <br>
 
-```{r cont_graphs, echo=FALSE, fig.height = 5, fig.width = 15}
+
+```{r cont_graphs od, echo=FALSE, fig.height = 2.2, fig.width = 15}
 title2 <- c('', paste0('Liposomal bupivacaine (n)'), "mean (SD)",
             paste0('Placebo'), "mean (SD)",
             paste0('Mean Difference (SMD) 95%CI'), 
@@ -307,10 +312,10 @@ plot2 <- forestplot(subtotal2,
                               ticks = gpar(cex = 0.9, fontface="bold"),
                               summary = gpar(cex = 0.9),
                               xlab = gpar(cex=0.9)),
-             xticks = c(-3,0,2),
+             xticks = c(-2,0,2),
              xlog=FALSE,
-             clip = c(-3,2),
-             grid = c(-3,0,2),
+             clip = c(-1.5,2),
+             grid = c(-1.5,0,2),
              lwd.xaxis = 1,
              lwd.ci = 2.2,
              lwd.zero = 2,
@@ -319,4 +324,5 @@ plot2 <- forestplot(subtotal2,
 
 plot2
 ```
+
 </details>

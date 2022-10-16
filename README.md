@@ -15,11 +15,22 @@ Individual Forestplots Continuous Data
 </h2>
 <details>
 <summary>
-<b>Figure A -</b> Pain & Dose of opiod rescue medication with liposomal
-bupivacaine vs others
+<b>Figure A -</b> Pain Outcome with liposomal bupivacaine vs others
 </summary>
 
 <br>
 
-![](Cont%20Output%20Figures/cont_graphs-1.svg)<!-- -->
+![](Cont%20Output%20Figures/cont_graphs%20po-1.svg)<!-- -->
+
+</details>
+<details>
+<summary>
+<b>Figure A -</b> Dose of rescue medication Outcome with liposomal
+bupivacaine vs placebo
+</summary>
+
+<br>
+
+![](Cont%20Output%20Figures/cont_graphs%20od-1.svg)<!-- -->
+
 </details>
