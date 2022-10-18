@@ -270,7 +270,7 @@ plot1
 
 <details>
 
-<summary><b>Figure A -</b> Dose of rescue medication Outcome with liposomal bupivacaine vs placebo </summary>
+<summary><b>Figure B -</b> Dose of rescue medication Outcome with liposomal bupivacaine vs placebo </summary>
 <br>
 
 
