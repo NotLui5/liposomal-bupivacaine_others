@@ -10,12 +10,26 @@ possible. All information or documents used, from the protocol to the
 final publication, will be available here. If further information is
 needed, please do not hesitate to contact us.
 
+<br>
+<h2>
+Individual Forestplots Dichotomus Data
+</h2>
+<details>
+<summary>
+<b>Figure A -</b> Adverse effects of liposomal bupivacaine vs others
+</summary>
+
+<br>
+
+![](Cont%20Output%20Figures/overall_graph_REML-1.svg)<!-- -->
+
+</details>
 <h2>
 Individual Forestplots Continuous Data
 </h2>
 <details>
 <summary>
-<b>Figure A -</b> Pain Outcome with liposomal bupivacaine vs others
+<b>Figure B -</b> Pain Outcome with liposomal bupivacaine vs others
 </summary>
 
 <br>
@@ -25,7 +39,7 @@ Individual Forestplots Continuous Data
 </details>
 <details>
 <summary>
-<b>Figure A -</b> Dose of rescue medication Outcome with liposomal
+<b>Figure C -</b> Dose of rescue medication Outcome with liposomal
 bupivacaine vs placebo
 </summary>
 
