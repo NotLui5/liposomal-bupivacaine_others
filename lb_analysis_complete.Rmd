@@ -203,6 +203,8 @@ od1$comp[od1$comp == 'placebo (0.9% sodium chloride)'] <- 'placebo'
 # convertir a variables numericas
 str(po1)
 po1$intd <- as.numeric(po1$intd) 
+po1$n <- as.numeric(po1$n) 
+po1$n1 <- as.numeric(po1$n1) 
 po1$mean <- as.numeric(po1$mean) 
 po1$sd <- as.numeric(po1$sd)
 po1$mean1 <- as.numeric(po1$mean1) 
@@ -325,7 +327,7 @@ meta_ga
 
 ```{r analysis continuous, echo=FALSE, message=FALSE, warning=FALSE}
 db_po <- po1
-db_po <- escalc(measure="MD",
+db_po <- escalc(measure="SMD",
              m1i=mean, m2i = mean1, 
              sd1i  = sd, sd2i = sd1, 
              n1i = n, n2i= n1, data=po1)
@@ -565,10 +567,10 @@ plotf <- forestplot(text1f,
                               ticks = gpar(cex = 0.9, fontface="bold"),
                               summary = gpar(cex = 0.9),
                               xlab = gpar(cex=0.9)),
-             xticks = c(0.025, 0.01, 1, 4, 15,  95),
+             xticks = c(0.02, 0.1, 0.5, 1, 4, 15,  95),
              xlog=TRUE,
-             clip = c(0.025, 95),
-             grid = c(0.025, 0.1,  4, 15, 95),
+             clip = c(0.02, 95),
+             grid = c(0.02, 0.1, 0.5, 4, 15, 95),
              lwd.xaxis = 1,
              lwd.ci = 2.2,
              lwd.zero = 2,
@@ -588,11 +590,11 @@ plotf
 <summary><b>Figure B -</b> Pain Outcome with liposomal bupivacaine vs others </summary>
 <br>
 
-```{r cont_graphs po, echo=FALSE, fig.height = 2.2, fig.width = 15}
+```{r cont_graphs po, echo=FALSE, fig.height = 2.6, fig.width = 16.7}
 title1 <- c('', paste0('Liposomal bupivacaine (n)'), "mean (SD)",
             paste0('Others'), "mean (SD)",
-            paste0('Mean Difference (MD) 95%CI'), 
-            paste0('Weights'))
+            paste0('Standardised Mean Difference (SMD) 95%CI'), 
+            paste0('Weights (%)'))
 
 sub_cont1 <- c('Pain (NRS)', rep(NA, 6))
 
@@ -626,10 +628,10 @@ plot1 <- forestplot(subtotal1,
                               ticks = gpar(cex = 0.9, fontface="bold"),
                               summary = gpar(cex = 0.9),
                               xlab = gpar(cex=0.9)),
-             xticks = c(-15,0,12),
+             xticks = c(-10,-6, -3,0,5),
              xlog=FALSE,
-             clip = c(-15,12),
-             grid = c(-15,0,12),
+             clip = c(-10,5),
+             grid = c(-10,-6,-3,0,5),
              lwd.xaxis = 1,
              lwd.ci = 2.2,
              lwd.zero = 2,
@@ -650,13 +652,13 @@ plot1
 <br>
 
 
-```{r cont_graphs od, echo=FALSE, fig.height = 2.2, fig.width = 15}
+```{r cont_graphs od, echo=FALSE, fig.height = 2.2, fig.width = 16.7}
 title2 <- c('', paste0('Liposomal bupivacaine (n)'), "mean (SD)",
             paste0('Placebo'), "mean (SD)",
-            paste0('Mean Difference (SMD) 95%CI'), 
-            paste0('Weights'))
+            paste0('Standardised Mean Difference (SMD) 95%CI'), 
+            paste0('Weights (%)'))
 
-sub_cont2 <- c('Dose of opiod rescue medication (mg)', rep(NA, 6))
+sub_cont2 <- c('Dose of opiod rescue medication', rep(NA, 6))
 
 subtotal2 <- rbind(title2, NA,
                    sub_cont2, tbl_md_od$b[-c(1:3, nrow(tbl_md_od$b)-3),])
@@ -688,10 +690,10 @@ plot2 <- forestplot(subtotal2,
                               ticks = gpar(cex = 0.9, fontface="bold"),
                               summary = gpar(cex = 0.9),
                               xlab = gpar(cex=0.9)),
-             xticks = c(-2,0,2),
+             xticks = c(-1.5,-0.6,0,1,2),
              xlog=FALSE,
              clip = c(-1.5,2),
-             grid = c(-1.5,0,2),
+             grid = c(-1.5,-0.6,0,1,2),
              lwd.xaxis = 1,
              lwd.ci = 2.2,
              lwd.zero = 2,
