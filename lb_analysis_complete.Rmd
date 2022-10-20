@@ -183,6 +183,11 @@ names(od1) <- c('Author', 'int', 'intd', 'comp', 'compd', 'tpart', 'n', 'n1', 'm
 rownames(po1) <- NULL #Restablecer el numero de filas
 rownames(od1) <- NULL #Restablecer el numero de filas
 
+# The author of the paper asked us to add the study by Gorfine et. al., 
+# because it also measures pain but with another scale. With the next data: 
+po1[nrow(po1)+1,] = c("Gorfine, et. al","LB","300","placebo", "ss", "187", "94",
+                      "93", "141.8", "10.7", NA, NA, "202.5", "10.7", NA, NA)
+
 # Dejar variables a una sola unidad
 po1$Author[po1$Author == '60'] <- 'Haas, et. al'
 po1$Author[po1$Author == '74'] <- 'Kanlıöz, et. al'
