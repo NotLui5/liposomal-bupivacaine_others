@@ -1,0 +1,178 @@
+---
+title: "Meta-analysis of Liposomal bupivacaine vs others"
+knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_file = paste0(dirname(inputFile),'/README.md')) })
+output: github_document
+---
+<i> Analysis and visualization developed by [Luis A. Figueroa](https://twitter.com/LuisFig1706) and [Oscar J. Ponce](https://twitter.com/PonceOJ)</i>
+
+The purpose of this site is to make our meta-analysis as transparent as possible. All information or documents used, from the protocol to the final publication, will be available here. If further information is needed, please do not hesitate to contact us.
+
+```{r packages, include=FALSE}
+library(metafor)
+library(tidyverse)
+library(forestplot)
+library(rmarkdown)
+library(openxlsx)
+
+knitr::opts_chunk$set(fig.path = "Cont Output Figures/", dev='svg') # dev = 'png'
+```
+
+```{r cleaning of Dichotomus outcomes, include=FALSE}
+data1 <- read.xlsx("Exparel analysis.xlsx", sheet = 2)
+data2 <- data1[-c(7,10),]
+data2$comp <- c("0.9% sodium chloride","0.9% sodium chloride","","",
+                "Bupivacaine HCl 75", "Bupivacaine HCl 75", "","")
+data2$n2 <- c("93", "93","","","26","26","","")
+data2$e2 <- c("4", "5","","","3","1","","")
+names(data2) <- c('Author', 'int', 'n1', 'outc', 'e1','comp','n2','e2')
+data2 <- data2[-c(3,4,7,8),]
+data2$Author <- c(rep("Gorfine, et. al",2),rep("Haas, et. al",2))
+data2$int <- c(rep("LB 300 mg",2),rep("LB 266 mg",2))
+data2$n1 <- c(rep("94",2),rep("25",2))
+data2 <- data2[,c(1,4,2,6,5,8,3,7)]
+rownames(data2) <- NULL
+# Convert to numeric variables
+data2$e2 <- as.numeric(data2$e2)
+data2$n1 <- as.numeric(data2$n1)
+data2$n2 <- as.numeric(data2$n2)
+
+# Vomitos
+datad_v <- data2[c(1,3),]
+# Pain
+datad_p <- data2[c(2,4),] 
+```
+
+```{r or_dichotomus outcomes_adverse effects, include=FALSE}
+dat_v <- escalc(measure="OR", ai=n1, bi=n2,
+              ci=e1, di=e2, data=datad_v)
+dat_v <- summary(dat_v)
+dat_v
+
+dat_p <- escalc(measure="OR", ai=n1, bi=n2,
+              ci=e1, di=e2, data=datad_p)
+dat_p <- summary(dat_p)
+dat_p
+```
+
+```{r meta_dichotomus outcomes_adverse effects, include=FALSE}
+meta_datv_reml <- rma(yi, vi, method="REML", data=dat_v, test='knha')
+
+meta_datp_reml <- rma(yi, vi, method="REML", data=dat_p, test='knha')
+```
+
+```{r predict_dichotomus outcomes_adverse effects, include=FALSE}
+meta_v <- predict(meta_datv_reml, transf = exp, digits = 2)
+
+meta_p <- predict(meta_datp_reml, transf = exp, digits = 2)
+```
+
+<br>
+<h2>Individual Forestplot Dichotomus Data</h2>
+
+
+<details>
+
+<summary><b>Figure A -</b> Adverse effects of liposomal bupivacaine vs others</summary>
+<br>
+
+```{r overall_graph_REML, echo=FALSE, fig.height = 3.8, fig.width = 13.5}
+col1f <- c("Author", datad_v$Author, 
+      paste("Overall Odds Ratio for", meta_datv_reml$k, "studies"),
+      paste("(Tau^2 = ", (formatC(meta_datv_reml$tau2, digits=2, format="f")), ", df = ", 
+            (meta_datv_reml$parms),
+            ", p ", (ifelse(meta_datv_reml$QEp < 0.001, 
+                            paste("< 0.001"),
+                            paste("= ", formatC(meta_datv_reml$QEp, digits=3, format="f")))),
+            "; ", "I^2", " = ", (formatC(meta_datv_reml$I2, digits=1, format="f")), "%)"),
+      NA, NA,
+      "Author", datad_p$Author, 
+      paste("Overall Odds Ratio for", meta_datp_reml$k, "studies"),
+      paste("(Tau^2 = ", (formatC(meta_datp_reml$tau2, digits=2, format="f")), ", df = ", 
+            (meta_datp_reml$parms),
+            ", p ", (ifelse(meta_datp_reml$QEp < 0.001, 
+                            paste("< 0.001"),
+                            paste("= ", formatC(meta_datp_reml$QEp, digits=3, format="f")))),
+            "; ", "I^2", " = ", (formatC(meta_datp_reml$I2, digits=1, format="f")), "%)"))
+
+col2f <- c("Liposomal Bupivacaine (n/N)",
+      paste(dat_v$e1,"/", dat_v$n1), paste0(sum(dat_v$e1), " / ", sum(dat_v$n1)), NA,
+      NA, NA, 
+      "Liposomal Bupivacaine (n/N)",
+      paste(dat_p$e1,"/", dat_p$n1), paste0(sum(dat_p$e1), " / ", sum(dat_p$n1)), NA)
+
+col3f <- c("others (n/N)",
+      paste(dat_v$e2,"/", dat_v$n2), paste0(sum(dat_v$e2), " / ", sum(dat_v$n2)), NA,
+      NA, NA,
+      "others (n/N)",
+      paste(dat_p$e2,"/", dat_p$n2), paste0(sum(dat_p$e2), " / ", sum(dat_p$n2)), NA)
+
+col4f <- c("Odds Ratio (95% CI)", paste0(formatC(exp(dat_v$yi), digits = 2, format = "f"), 
+                                        " ( ",formatC(exp(dat_v$ci.lb), format='f', digits=2),
+                                        " - ", formatC(exp(dat_v$ci.ub), format='f',digits=2), " ) "),
+          paste(formatC(meta_v$pred, format = 'f', digits=2),
+            "(", formatC(meta_v$ci.lb, format = 'f', digits = 2),
+            "-", formatC(meta_v$ci.ub, format = 'f', digits = 2), ")"), NA,
+          NA, NA,
+          "Odds Ratio (95% CI)", paste0(formatC(exp(dat_p$yi), digits = 2, format = "f"), 
+                                        " ( ",formatC(exp(dat_p$ci.lb), format='f', digits=2),
+                                        " - ", formatC(exp(dat_p$ci.ub), format='f',digits=2), " ) "),
+          paste(formatC(meta_p$pred, format = 'f', digits=2),
+            "(", formatC(meta_p$ci.lb, format = 'f', digits = 2),
+            "-", formatC(meta_p$ci.ub, format = 'f', digits = 2), ")"), NA)
+
+col5f <- c("Weight(%)", paste(formatC(weights(meta_datv_reml), format='f', digits = 1),'%'), NA, NA,
+           NA, NA,
+           "Weight(%)", paste(formatC(weights(meta_datp_reml), format='f', digits = 1),'%'), NA, NA)
+
+text1f <- cbind(col1f, col2f, col3f, col4f, col5f)
+
+# Adding subtitles
+subtitle1 <- c("Vomiting", rep(NA, 4))
+subtitle2 <- c("Pain During Bowel Movements", rep(NA,4))
+
+text1f <- rbind(text1f[1,], subtitle1, text1f[2:4,], subtitle2, text1f[c(9:12),])
+rownames(text1f) <- NULL
+
+
+cf <- structure(list(
+          mean = c(rep(NA, 2), exp(dat_v$yi), meta_v$pred, NA, exp(dat_p$yi), meta_p$pred,NA),
+          lower = c(rep(NA, 2), exp(dat_v$ci.lb), meta_v$ci.lb, NA, exp(dat_p$ci.lb), meta_p$ci.lb, NA),
+          upper = c(rep(NA, 2), exp(dat_v$ci.ub), meta_v$ci.ub, NA, exp(dat_p$ci.ub), meta_p$ci.ub, NA)),
+          .Names = c("mean", "lower", "upper"),
+          row.names = c(NA, -1L*nrow(text1f)),
+          class = "data.frame")
+
+sizes1f <- c(NA, NA, (weights(meta_datv_reml)*0.012), 1,
+             NA, (weights(meta_datp_reml)*0.016), 1, NA)
+names(sizes1f) <- NULL
+
+plotf <- forestplot(text1f, 
+             graph.pos = 4,
+             zero = 1,
+             cf,
+             new_page = TRUE,
+             colgap = unit(5, "mm"),
+             hrzl_lines = list("2" = gpar (lwd=1, columns=1:6, col="black")),
+             lineheight=unit(0.7,'cm'),
+             boxsize = sizes1f,
+             is.summary = c(rep(T, 2), rep(F, 2), T,T, rep(F, 2), T,T),
+             align = c('l', rep('c', 2), 'l', 'l'),
+             ci.vertices = TRUE,
+             txt_gp = fpTxtGp(label = gpar (cex=0.9), 
+                              ticks = gpar(cex = 0.9, fontface="bold"),
+                              summary = gpar(cex = 0.9),
+                              xlab = gpar(cex=0.9)),
+             xticks = log(c(0.02, 0.1, 0.5, 1, 4, 15,  95)),
+             xlog=T,
+             clip = c(0.02, 95),
+             grid = c(0.02, 0.1, 0.5, 4, 15, 95),
+             lwd.xaxis = 1,
+             lwd.ci = 2.2,
+             lwd.zero = 2,
+             graphwidth = unit(10,"cm"),
+             col=fpColors(box="black",line="grey", zero = 'dodgerblue4', axes="grey20", summary="black"))
+plotf
+
+```
+
+</details>

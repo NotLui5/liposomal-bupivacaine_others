@@ -12,7 +12,7 @@ needed, please do not hesitate to contact us.
 
 <br>
 <h2>
-Individual Forestplots Dichotomus Data
+Individual Forestplot Dichotomus Data
 </h2>
 <details>
 <summary>
@@ -22,29 +22,5 @@ Individual Forestplots Dichotomus Data
 <br>
 
 ![](Cont%20Output%20Figures/overall_graph_REML-1.svg)<!-- -->
-
-</details>
-<h2>
-Individual Forestplots Continuous Data
-</h2>
-<details>
-<summary>
-<b>Figure B -</b> Pain Outcome with liposomal bupivacaine vs others
-</summary>
-
-<br>
-
-![](Cont%20Output%20Figures/cont_graphs%20po-1.svg)<!-- -->
-
-</details>
-<details>
-<summary>
-<b>Figure C -</b> Dose of rescue medication Outcome with liposomal
-bupivacaine vs placebo
-</summary>
-
-<br>
-
-![](Cont%20Output%20Figures/cont_graphs%20od-1.svg)<!-- -->
 
 </details>
