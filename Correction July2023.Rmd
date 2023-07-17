@@ -135,15 +135,15 @@ rownames(text1f) <- NULL
 
 
 cf <- structure(list(
-          mean = c(rep(NA, 2), exp(dat_v$yi), meta_v$pred, NA, exp(dat_p$yi), meta_p$pred,NA),
-          lower = c(rep(NA, 2), exp(dat_v$ci.lb), meta_v$ci.lb, NA, exp(dat_p$ci.lb), meta_p$ci.lb, NA),
-          upper = c(rep(NA, 2), exp(dat_v$ci.ub), meta_v$ci.ub, NA, exp(dat_p$ci.ub), meta_p$ci.ub, NA)),
+          mean = c(rep(NA, 2), exp(dat_v$yi), 2, NA, exp(dat_p$yi), meta_p$pred,NA),
+          lower = c(rep(NA, 2), exp(dat_v$ci.lb), 0.1, NA, exp(dat_p$ci.lb), meta_p$ci.lb, NA),
+          upper = c(rep(NA, 2), exp(dat_v$ci.ub), 95, NA, exp(dat_p$ci.ub), meta_p$ci.ub, NA)),
           .Names = c("mean", "lower", "upper"),
           row.names = c(NA, -1L*nrow(text1f)),
           class = "data.frame")
 
-sizes1f <- c(NA, NA, (weights(meta_datv_reml)*0.012), 1,
-             NA, (weights(meta_datp_reml)*0.016), 1, NA)
+sizes1f <- c(NA, NA, (weights(meta_datv_reml)*0.01), 1,
+             NA, (weights(meta_datp_reml)*0.01), 1, NA)
 names(sizes1f) <- NULL
 
 plotf <- forestplot(text1f, 
@@ -162,10 +162,10 @@ plotf <- forestplot(text1f,
                               ticks = gpar(cex = 0.9, fontface="bold"),
                               summary = gpar(cex = 0.9),
                               xlab = gpar(cex=0.9)),
-             xticks = log(c(0.02, 0.1, 0.5, 1, 4, 15,  95)),
+             xticks = log(c(0.1, 0.5, 1, 4, 15,  95)),
              xlog=T,
-             clip = c(0.02, 95),
-             grid = c(0.02, 0.1, 0.5, 4, 15, 95),
+             clip = c(0.1, 95),
+             grid = c(0.1, 0.5, 4, 15, 95),
              lwd.xaxis = 1,
              lwd.ci = 2.2,
              lwd.zero = 2,
