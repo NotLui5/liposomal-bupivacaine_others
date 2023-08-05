@@ -130,19 +130,19 @@ text1f <- cbind(col1f, col2f, col3f, col4f, col5f)
 subtitle1 <- c("Vomiting", rep(NA, 4))
 subtitle2 <- c("Pain During Bowel Movements", rep(NA,4))
 
-text1f <- rbind(text1f[1,], subtitle1, text1f[2:4,], subtitle2, text1f[c(9:12),])
+text1f <- rbind(text1f[1,], subtitle1, text1f[2:6,], subtitle2, text1f[c(9:12),])
 rownames(text1f) <- NULL
 
 
 cf <- structure(list(
-          mean = c(rep(NA, 2), exp(dat_v$yi), 2, NA, exp(dat_p$yi), meta_p$pred,NA),
-          lower = c(rep(NA, 2), exp(dat_v$ci.lb), 0.1, NA, exp(dat_p$ci.lb), meta_p$ci.lb, NA),
-          upper = c(rep(NA, 2), exp(dat_v$ci.ub), 95, NA, exp(dat_p$ci.ub), meta_p$ci.ub, NA)),
+          mean = c(rep(NA, 2), exp(dat_v$yi), 2, NA,NA,NA, exp(dat_p$yi), meta_p$pred,NA),
+          lower = c(rep(NA, 2), exp(dat_v$ci.lb), 0.1, NA,NA,NA, exp(dat_p$ci.lb), meta_p$ci.lb, NA),
+          upper = c(rep(NA, 2), exp(dat_v$ci.ub), 95, NA, NA,NA,exp(dat_p$ci.ub), meta_p$ci.ub, NA)),
           .Names = c("mean", "lower", "upper"),
           row.names = c(NA, -1L*nrow(text1f)),
           class = "data.frame")
 
-sizes1f <- c(NA, NA, (weights(meta_datv_reml)*0.01), 1,
+sizes1f <- c(NA, NA, (weights(meta_datv_reml)*0.01), 1,NA, NA,
              NA, (weights(meta_datp_reml)*0.01), 1, NA)
 names(sizes1f) <- NULL
 
@@ -155,7 +155,7 @@ plotf <- forestplot(text1f,
              hrzl_lines = list("2" = gpar (lwd=1, columns=1:6, col="black")),
              lineheight=unit(0.7,'cm'),
              boxsize = sizes1f,
-             is.summary = c(rep(T, 2), rep(F, 2), T,T, rep(F, 2), T,T),
+             is.summary = c(rep(T, 2), rep(F, 2), T,T,T,T, rep(F, 2), T,T),
              align = c('l', rep('c', 2), 'l', 'l'),
              ci.vertices = TRUE,
              txt_gp = fpTxtGp(label = gpar (cex=0.9), 
