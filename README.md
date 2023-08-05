@@ -21,6 +21,6 @@ Individual Forestplot Dichotomus Data
 
 <br>
 
-![](Cont%20Output%20Figures/overall_graph_REML-1.svg)<!-- -->
+![](Output%20Figures/overall_graph_REML-1.svg)<!-- -->
 
 </details>

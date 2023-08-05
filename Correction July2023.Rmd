@@ -14,7 +14,7 @@ library(forestplot)
 library(rmarkdown)
 library(openxlsx)
 
-knitr::opts_chunk$set(fig.path = "Cont Output Figures/", dev='svg') # dev = 'png'
+knitr::opts_chunk$set(fig.path = "Output Figures/", dev='svg') # dev = 'png'
 ```
 
 ```{r cleaning of Dichotomus outcomes, include=FALSE}
